@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>pentamath - Sign Up</title>
+  <link rel="stylesheet" href="static/css/signup.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+</head>
+<body>
+  <div id="form-container">
+    <div id="form-header">Sign Up</div>
+    <div id="form-proper">
+      <form>
+        <label for="username">Username: </label>
+        <input id="username" type="text" />
+        <label for="password">Password: </label>
+        <input id="password" type="password" />
+        <label for="password-verify">Verify Password: </label>
+        <input id="password-verify" type="password" />
+        <div id="submit">Sign me up!</div>
+      </form>
+    </div>
+  </div>
+  <p id="message"></p>
+  <script type="text/javascript">
+
+    var username = document.getElementById("username");
+    var password = document.getElementById("password");
+    var verify = document.getElementById("password-verify");
+    var submit = document.getElementById("submit");
+    var message = document.getElementById("message");
+    
+
+    username.border = undefined;
+    password.border = undefined;
+    verify.border = undefined;
+    submit.valid = false;
+    
+    username.addEventListener('input', function () {
+      if (/^[a-zA-Z0-9]+$/.test(username.value))
+        username.border = 'green';
+      else
+        username.border = 'red';
+    });
+
+    password.addEventListener('input', function () {
+      if (password.value.length > 4)
+        password.border = 'green';
+      else
+        password.border = 'red';
+    });
+
+    verify.addEventListener('input', function () {
+      if (verify.value === password.value && password.border === 'green')
+        verify.border = 'green';
+      else
+        verify.border = 'red';
+    });
+  
+    document.body.addEventListener('input', function () {
+      if (username.border) username.style.border = '2px solid ' + username.border;
+      if (password.border) password.style.border = '2px solid ' + password.border;
+      if (verify.border) verify.style.border = '2px solid ' + verify.border;
+      submit.valid = username.border === 'green' && verify.border === 'green';
+    });
+
+    submit.addEventListener('mouseenter', function () {
+      if (submit.valid)
+        submit.style.cursor = 'pointer';
+      else
+        submit.style.cursor = 'default';
+    });
+
+    submit.addEventListener('click', function () {
+      if (!submit.valid) return;
+
+      var data = {
+        username: username.value,
+        password: password.value
+      };
+
+      $.ajax({
+        type: "POST",
+        url: "signup",
+        data: data,
+        success: function (data, st, xhr) {
+          if (!data.success) {
+            message.innerHTML = data.error;
+          } else {
+            window.location.href = 'http://localhost:5000/?new';
+          }
+        },
+        error: function () {
+          message.innerHTML = "There was an error processing your registration request :(";
+        },
+        dataType: 'json'
+      });
+    });
+    
+  </script>
+</body>
+</html>
