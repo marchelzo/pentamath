@@ -71,16 +71,19 @@ html {
 }
 
 #signup {
+  margin-left: 1em;
   margin-right: 1em;
 }
 
 #play {
   margin-left: 1em;
+  margin-right: 1em;
 }
 
 #description {
   margin: 0 auto;
-  width: 70%;
+  width: 35rem;
+  max-width: 87%;
   text-align: center;
   font-family: "Open Sans", sans-serif;
   font-weight: 600;
