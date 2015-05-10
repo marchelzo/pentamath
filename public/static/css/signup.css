@@ -1,0 +1,62 @@
+#form-container {
+  width: 50%;
+  min-width: 600px;
+  min-height: 540px;
+  margin: 10rem auto;
+  font-family: Georgia, serif;
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+  margin-bottom: 3rem;
+}
+
+#form-header {
+  width: 100%;
+  height: 6rem;
+  text-align: center;
+  line-height: 6rem;
+  font-size: 2.6rem;
+}
+
+#form-proper {
+  margin-top: 2rem;
+  width: 100%;
+  height: 24rem;
+}
+
+
+label {
+  width: 100%;
+  text-align: center;
+  display: inline-block;
+}
+
+label:first-child {
+  margin-top: 2rem;
+}
+
+input {
+  margin: 2rem auto;
+  margin-top: 0.2rem;
+  height: 2rem;
+  width: 10rem;
+  font-size: 1.6rem;
+  display: block;
+}
+
+#submit {
+  text-align: center;
+  width: 6rem;
+  height: 2rem;
+  margin: 0 auto;
+  border: 1px solid black;
+  line-height: 2rem;
+}
+
+#submit:hover {
+  cursor: pointer;
+}
+
+#message {
+  width: 100%;
+  text-align: center;
+}
