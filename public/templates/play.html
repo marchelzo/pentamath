@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="static/css/play.css">
+    <title>pentamath - Play</title>
+    </head>
+    <body>
+        <div>
+          <a href="practice.html" id="practice">Practice</a>
+          <a href="room.html" id="room">Create/Join Room</a>
+          <a href="versus.html" id="versus">Versus</a>
+        </div>
+        <div id="background"></div>
+        <div id="messagebox">
+            <ul id="messages">
+            </ul>
+        </div>
+        <div>
+        <input type="text" id="message"/>
+        <button id="send">Send</button>
+        </div>
+        <script>
+            var msgList = document.getElementById("messages");
+            var connection = new WebSocket('ws://192.168.0.116:8000');
+            var message = document.getElementById("message");
+            var send = document.getElementById("send");
+
+
+            connection.onmessage = function (msg) {
+                console.log('received');
+                messages.innerHTML += ("<li>" + msg.data + "</li>");
+            };
+
+            send.addEventListener('click', function () {
+                connection.send('test ' + message.value);
+            });
+
+        </script>
+    </body>
+</html>
