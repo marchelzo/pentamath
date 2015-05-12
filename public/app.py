@@ -4,6 +4,8 @@ from flask import Flask, session, redirect, url_for, escape, request, render_tem
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
 import psycopg2
+import uuid
+import redis
 
 USERNAME_REGEX = re.compile('^[a-zA-Z0-9]+$')
 
@@ -15,8 +17,9 @@ def success():
     print('success')
     return '{"success": true}', 200, {'Content-Type': 'application/json; charset=utf-8'}
 
-db_connection = psycopg2.connect('dbname=pentamath user=dawson')
+db_connection = psycopg2.connect('dbname=pentamath user=bradley')
 cursor = db_connection.cursor()
+redis_connection = redis.StrictRedis(host='localhost', port=6379, db=0)
 app = Flask(__name__)
 
 @app.route('/')
@@ -40,7 +43,7 @@ def signup():
 
 
     # ensure username uniqueness
-    cursor.execute('SELECT 1 FROM users WHERE username=%s', (request.form['username'],))
+    cursor.execute('SELECT 1 FROM users WHERE username = %s', (request.form['username'],))
     if cursor.rowcount > 0:
         return error('Username is already taken')
 
@@ -55,15 +58,26 @@ def signup():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        session['username'] = request.form['username']
-        return redirect(url_for('index'))
-    return '''
-        <form action="" method="post">
-            <p><input type=text name=username>
-            <p><input type=submit value=Login>
-        </form>
-    '''
+    if request.method == 'GET':
+        return render_template('login.html')
+    try:
+        cursor.execute('SELECT (username, password) FROM users WHERE LOWER(username) = LOWER(%s)', (request.form['username'],))
+        if cursor.rowcount != 1:
+            return error('Invalid username or password')
+        row = cursor.fetchone()
+        stored_hash = row[1].split()[0]
+        if not check_password_hash(stored_hash, request.form['password']):
+            return error('Invalid username or password')
+
+        uid = str(uuid.uuid4())
+        session['username'] = row[0]
+        session['uid'] = uid
+        redis_connection.setex(uid, 1200, row[0])
+        return success()
+    
+    except Exception:
+        return error('Invalid username or password')
+        
 
 @app.route('/logout')
 def logout():
@@ -77,6 +91,11 @@ def play():
         render_template('play.html')
     else:  # not logged in
         return redirect(url_for('login'), code=302)
+
+@app.before_request
+def update_session():
+    if 'username' in session:
+        redis.expire(session['uid'], 1200)
 
 
 # set the secret key.  keep this really secret:
