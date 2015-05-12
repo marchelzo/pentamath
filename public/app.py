@@ -71,9 +71,10 @@ def login():
 
         uid = str(uuid.uuid4())
         session['username'] = row[0]
-        session['uid'] = uid
         redis_connection.setex(uid, 1200, row[0])
-        return success()
+        response = app.make_response(success())
+        response.set_cookie('pentamath-uid', uid)
+        return response
     
     except Exception:
         return error('Invalid username or password')
