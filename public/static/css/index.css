@@ -9,7 +9,7 @@ html {
 }
 
 #background {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -25,10 +25,11 @@ html {
 
 #logo {
   width: 40rem;
+  max-width:99%;
   height: 8rem;
   background-color: #fff;
-  margin: 10rem auto;
-  margin-bottom: 6rem;
+  margin: 10% auto;
+  margin-bottom: 6%;
   font-family: "Arvo", monospace;
   font-size: 6em;
   line-height: 8rem;
@@ -61,7 +62,8 @@ html {
   width: 12rem;
   background-color: #4090e9;
   color: #eee;
-  margin: 10rem auto;
+  margin: 5% auto;
+  margin-bottom: 5%;
   font-family: Arial;
   font-size: 1.6rem;
   line-height: 4rem;
@@ -69,16 +71,19 @@ html {
 }
 
 #signup {
+  margin-left: 1em;
   margin-right: 1em;
 }
 
 #play {
   margin-left: 1em;
+  margin-right: 1em;
 }
 
 #description {
   margin: 0 auto;
-  width: 40%;
+  width: 35rem;
+  max-width: 87%;
   text-align: center;
   font-family: "Open Sans", sans-serif;
   font-weight: 600;

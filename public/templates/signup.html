@@ -7,6 +7,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 </head>
 <body>
+  <div id="background"></div>
   <div id="form-container">
     <div id="form-header">Sign Up</div>
     <div id="form-proper">
@@ -87,7 +88,7 @@
           if (!data.success) {
             message.innerHTML = data.error;
           } else {
-            window.location.href = 'http://localhost:5000/?new';
+            window.location.href = 'http://192.168.0.116:5000/?new';
           }
         },
         error: function () {
