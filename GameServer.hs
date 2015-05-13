@@ -7,6 +7,7 @@ import           Network.WebSockets
 import qualified Data.Text as T
 import           Data.Text (Text(..))
 import           Data.Text.Encoding (encodeUtf8, decodeUtf8)
+import qualified Data.Text.IO as TIO
 import qualified Data.Map.Strict as Map
 import           Data.Map.Strict (Map(..))
 import           Control.Concurrent
@@ -51,7 +52,9 @@ handleConnection redis state pending = do
     Left  _               -> sendTextData connection ("Error processing request" :: Text)
 
   where
-    disconnect username = modifyMVar_ state $ \s -> return $ s { clients = filter ((/= username) . fst) (clients s) }
+    disconnect username = do
+      TIO.putStrLn $ "Disconnecting: " <> username
+      modifyMVar_ state $ \s -> return $ s { clients = filter ((/= username) . fst) (clients s) }
 
 newUser :: MVar GameServer -> User -> IO ()
 newUser state user@(username, connection) = do

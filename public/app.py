@@ -7,6 +7,7 @@ import psycopg2
 import uuid
 import redis
 import traceback
+from os import getenv
 
 USERNAME_REGEX = re.compile('^[a-zA-Z0-9]+$')
 
@@ -18,7 +19,15 @@ def success():
     print('success')
     return '{"success": true}', 200, {'Content-Type': 'application/json; charset=utf-8'}
 
-db_connection = psycopg2.connect('dbname=pentamath user=dawson')
+# retrieve necessary environment variables
+DB_USER = getenv('PENTAMATH_DB_USER')
+if DB_USER is None:
+    raise Exception('DB_USER not set')
+HOST = getenv('PENTAMATH_HOST')
+if HOST is None:
+    raise Exception('PENTAMATH_HOST not set')
+
+db_connection = psycopg2.connect('dbname=pentamath user=' + DB_USER)
 cursor = db_connection.cursor()
 redis_connection = redis.StrictRedis(host='localhost', port=6379, db=0)
 app = Flask(__name__)
@@ -30,7 +39,7 @@ def index():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'GET':
-        return render_template('signup.html')
+        return render_template('signup.html', host=HOST)
 
     # ensure validity of username and password
     user_len = len(request.form['username'])
@@ -72,6 +81,7 @@ def login():
             return error('PASS Invalid username or password')
 
         uid = str(uuid.uuid4())
+        session['uid'] = uid
         session['username'] = row[0]
         redis_connection.setex(uid, 1200, row[0])
         response = app.make_response(success())
@@ -92,15 +102,15 @@ def logout():
 @app.route('/play')
 def play():
     if 'username' in session: # logged in
-        return render_template('play.html')
+        return render_template('play.html', host=HOST)
     else:  # not logged in
         return redirect(url_for('login'), code=302)
 
 @app.before_request
 def update_session():
     pass
-    #if 'username' in session:
-        #redis_connection.expire(session['uid'], 1200)
+    if 'username' in session:
+        redis_connection.expire(session['uid'], 1200)
 
 
 # set the secret key.  keep this really secret:
