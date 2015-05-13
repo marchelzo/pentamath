@@ -7,18 +7,20 @@
     </head>
     <body>
         <div>
-          <a href="practice.html" id="practice">Practice</a>
-          <a href="room.html" id="room">Create/Join Room</a>
-          <a href="versus.html" id="versus">Versus</a>
+          <a href="#" class="myButton">Practice</a>
+          <a href="#" class="myButton">Lobby</a>
+          <a href="#" class="myButton">Versus</a>
         </div>
         <div id="background"></div>
         <div id="messagebox">
-            <ul id="messages">
-            </ul>
-        </div>
-        <div>
-        <input type="text" id="message"/>
-        <button id="send">Send</button>
+            <div id="seperator">
+                <ul id="messages">
+                </ul>
+            </div>
+            <div id="textline">
+            <input type="text" id="message"/>
+            <button id="send">Send</button>
+            </div>
         </div>
         <script>
 
@@ -46,6 +48,7 @@
 
             send.addEventListener('click', function () {
                 connection.send(message.value);
+                document.getElementById("message").value = "";
             });
 
             connection.onopen = function () {
