@@ -6,6 +6,7 @@ import re
 import psycopg2
 import uuid
 import redis
+import traceback
 
 USERNAME_REGEX = re.compile('^[a-zA-Z0-9]+$')
 
@@ -17,7 +18,7 @@ def success():
     print('success')
     return '{"success": true}', 200, {'Content-Type': 'application/json; charset=utf-8'}
 
-db_connection = psycopg2.connect('dbname=pentamath user=bradley')
+db_connection = psycopg2.connect('dbname=pentamath user=dawson')
 cursor = db_connection.cursor()
 redis_connection = redis.StrictRedis(host='localhost', port=6379, db=0)
 app = Flask(__name__)
@@ -61,13 +62,14 @@ def login():
     if request.method == 'GET':
         return render_template('login.html')
     try:
-        cursor.execute('SELECT (username, password) FROM users WHERE LOWER(username) = LOWER(%s)', (request.form['username'],))
+        cursor.execute('SELECT username, password FROM users WHERE LOWER(username) = LOWER(%s)', (request.form['username'],))
         if cursor.rowcount != 1:
-            return error('Invalid username or password')
+            return error('ROW Invalid username or password')
         row = cursor.fetchone()
+        print(row)
         stored_hash = row[1].split()[0]
         if not check_password_hash(stored_hash, request.form['password']):
-            return error('Invalid username or password')
+            return error('PASS Invalid username or password')
 
         uid = str(uuid.uuid4())
         session['username'] = row[0]
@@ -77,7 +79,8 @@ def login():
         return response
     
     except Exception:
-        return error('Invalid username or password')
+        print(traceback.format_exc())
+        return error('ERR Invalid username or password')
         
 
 @app.route('/logout')
@@ -89,14 +92,15 @@ def logout():
 @app.route('/play')
 def play():
     if 'username' in session: # logged in
-        render_template('play.html')
+        return render_template('play.html')
     else:  # not logged in
         return redirect(url_for('login'), code=302)
 
 @app.before_request
 def update_session():
-    if 'username' in session:
-        redis.expire(session['uid'], 1200)
+    pass
+    #if 'username' in session:
+        #redis_connection.expire(session['uid'], 1200)
 
 
 # set the secret key.  keep this really secret:

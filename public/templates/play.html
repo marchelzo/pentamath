@@ -22,6 +22,8 @@
         </div>
         <script>
 
+            'use strict';
+
             function getCookie(name) {
               var value = "; " + document.cookie;
               var parts = value.split("; " + name + "=");
@@ -35,7 +37,7 @@
         
 
             connection.onmessage = function (msg) {
-                var response = JSON.parse(msg);
+                var response = JSON.parse(msg.data);
                 if (response.type === 'globalChatMessage')
                   messages.innerHTML += ("<li>" + response.from + ': ' + response.message + "</li>");
                 else
@@ -46,7 +48,9 @@
                 connection.send(message.value);
             });
 
-            connection.send(getCookie('pentamath-uid'));
+            connection.onopen = function () {
+                connection.send(getCookie('pentamath-uid'));
+            };
 
         </script>
     </body>

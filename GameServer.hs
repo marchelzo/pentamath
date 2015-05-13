@@ -59,9 +59,9 @@ newUser state user@(username, connection) = do
   broadcastGlobalServerMessage state $ "Server: " <> username <> " has joined"
 
   let loop = do
-    message <- receiveData connection
-    broadcastGlobalChatMessage state user message
-    loop
+        message <- receiveData connection
+        broadcastGlobalChatMessage state user message
+        loop
 
   loop
 
