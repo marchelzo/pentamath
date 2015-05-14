@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric     #-}
 
-import           Control.Exception (finally)
+import           Control.Exception
 import           Control.Monad (forM_, void, replicateM)
 import           Data.Monoid ((<>))
 import           Network.WebSockets
@@ -147,7 +147,7 @@ startRoom state owner = do
     broadcastQuestion ps q = forM_ ps $ \p -> sendTextData (snd p) $ encodeMessage "newQuestion" q
       
 getAnswer :: Int -> User -> IO (User, Maybe Text)
-getAnswer timeLimit user@(username, connection) = do
+getAnswer timeLimit user@(username, connection) = flip catch ignore $ do
   result <- race waitForAnswer outOfTime
   return $ case result of
     Left answer -> (user, Just answer)
@@ -155,7 +155,9 @@ getAnswer timeLimit user@(username, connection) = do
   where
     outOfTime = threadDelay (timeLimit * 1000000) >> putStrLn "OUT OF TIME"
     waitForAnswer = receiveData connection :: IO Text
-    
+    ignore :: SomeException -> IO (User, Maybe Text)
+    ignore = const $ return (user, Nothing) 
+
 main :: IO ()
 main = do
   state <- newMVar initialServerState
