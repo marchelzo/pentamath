@@ -77,6 +77,7 @@ newUser state user@(username, connection) = do
           "globalChatMessage" -> receiveData connection >>= broadcastGlobalChatMessage state user
           "newRoom"           -> createNewRoom state user
           "joinRoom"          -> joinRoom state user
+          _                   -> return ()
         loop
 
   loop
@@ -148,7 +149,7 @@ getAnswer timeLimit user@(username, connection) = do
     Left answer -> (user, Just answer)
     Right _     -> (user, Nothing)
   where
-    outOfTime = threadDelay timeLimit
+    outOfTime = threadDelay (timeLimit * 1000)
     waitForAnswer = receiveData connection :: IO Text
     
 main :: IO ()
