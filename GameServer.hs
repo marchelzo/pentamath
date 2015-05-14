@@ -153,7 +153,7 @@ getAnswer timeLimit user@(username, connection) = do
     Left answer -> (user, Just answer)
     Right _     -> (user, Nothing)
   where
-    outOfTime = threadDelay (timeLimit * 1000) >> putStrLn "OUT OF TIME"
+    outOfTime = threadDelay (timeLimit * 1000000) >> putStrLn "OUT OF TIME"
     waitForAnswer = receiveData connection :: IO Text
     
 main :: IO ()
