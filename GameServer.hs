@@ -125,9 +125,13 @@ startRoom state owner = do
 
   questions <- replicateM 5 getQuestion
 
+  putStrLn "ABOUT TO START"
+
   forM_ questions $ \q -> do
     broadcastQuestion ps q
+    putStrLn "SENT QUESTION"
     answers <- mapConcurrently (getAnswer 15) ps
+    putStrLn "GOT ANSWERS"
     updateScores answers >>= broadcastScoreboard ps
 
   where
@@ -149,7 +153,7 @@ getAnswer timeLimit user@(username, connection) = do
     Left answer -> (user, Just answer)
     Right _     -> (user, Nothing)
   where
-    outOfTime = threadDelay (timeLimit * 1000)
+    outOfTime = threadDelay (timeLimit * 1000) >> putStrLn "OUT OF TIME"
     waitForAnswer = receiveData connection :: IO Text
     
 main :: IO ()
