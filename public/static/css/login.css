@@ -28,28 +28,34 @@ html {
   height: auto;
   width: 50%;
   margin-top: 25%;
-  
+  min-width: 22 0px;
 }
 
 #logo {
-  background-color: #eee;
-  background: url(../images/MainTitle.png) no-repeat center center fixed; 
-  height: 50px;
+  height: calc(50vw *.3);
   width: 100vwmin;
+  margin-left: auto;
+  margin-right: auto;
    
 }
 
 #userpass {
+  margin-top: 10px;
   margin-right: auto;
   margin-left: auto;
   width: 100vwmin;
 }
 
 #username {
-  max-width: 49vwmin;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 48vwmin;
   
 }
 
 #password {
-  max-width: 49vwmin;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 48vwmin;
 }
+                        

@@ -1,0 +1,53 @@
+#chart {
+  position: absolute;
+  margin-left: calc(25vw - 180px);
+  margin-top: calc(50vh - 180px);
+  float: left;
+  width: 50vw;
+}
+
+#background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url(http://192.168.2.22:5000/static/images/math2.jpg) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  opacity: 0.1;
+  z-index: -1;
+}
+
+#container {
+  position: absolute;
+  float: right;
+  width: 50vw;
+  height: 100vh;
+  right: 0;
+    
+}
+
+#header {
+  width: 50vw;
+  border-bottom: 2px solid #4090e9;
+  text-align: center;
+  margin-top: 5vw;
+  font-size: 30px;
+        font-family: "Helvetica";
+        font-weight: bold;
+  
+}
+
+#leaderboard {
+  ol {
+  position:relative;
+  list-style-position: inside;
+  margin: 0px auto;
+  font-weight:bold;
+  font-family: "Arvo", monospace;
+  text-align:center;
+  font-size: 10pt;
+}
