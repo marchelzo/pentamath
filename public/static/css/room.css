@@ -96,8 +96,10 @@ html {
 }
 
 #messages {
+  padding: 0;
+  margin: 0;
   text-align: left;
-  list-style-type:none;
+  list-style-type: none;
 }
 
 #practice, #room, #versus {
