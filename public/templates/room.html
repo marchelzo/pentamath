@@ -73,11 +73,21 @@
             }
               
             });
+
+            function zeroTime(unit, value, total)
+            {
+                if (total == 0)
+                {
+                    document.getElementById("question").value = "Out Of Time!";
+                }else{
+
+                }
+            }
           
-          document.querySelector('#answerbox').addEventListener('keypress', function(e){
+            document.querySelector('#answerbox').addEventListener('keypress', function(e){
               var key = e.which || e.keyCode;
               if(key === 13) {
-                $("#time").TimeCircles({total_duration: 15, time: { Days: { show: false }, Hours: { show: false }, Minutes: { show: false }, Seconds: { text: "Seconds Left"} }}); 
+                $("#time").TimeCircles({count_past_zero: false, total_duration: 15, time: { Days: { show: false }, Hours: { show: false }, Minutes: { show: false }, Seconds: { text: "Seconds Left"} }}); 
                 connection.send(answerbox.value);
                 document.getElementById("answerbox").value = "";
             }
