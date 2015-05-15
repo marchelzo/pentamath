@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
-<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
       <meta charset="UTF-8">
       <link rel="stylesheet" href="/static/css/play.css">
       <title>pentamath - Play</title>
-      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     </head>
     <body>
     <div id="fade"></div>
@@ -34,9 +32,9 @@
           <img style="height:auto; width:100%; " src="/static/images/MainTitle.png">
         </div>
         <div>
-          <a href="#" id="practice" class="myButton">Practice</a>
+          <a href="/practice" id="practice" class="myButton">Practice</a>
           <a id="lobby" class="myButton">Lobby</a>
-          <a href="#" id="versus" class="myButton">Versus</a>
+          <a href="" id="versus" class="myButton">Versus</a>
         </div>
         <div id="background"></div>
         <div id="messagebox">
@@ -69,7 +67,7 @@
             inRoom: false
           };
         </script>
-        <script src="/static/js/game.js"></script>
+        <script type="text/javascript" src="/static/js/game.js"></script>
         <script type="text/javascript">
           send.addEventListener('click', function () {
                 connection.send(message.value);
