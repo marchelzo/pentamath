@@ -13,17 +13,19 @@ function handleMessage(msg) {
         text: '[Global] ' + msg.from + ': ' + msg.message
       }
     ));
-    $('#seperator')[0].scrollTop = $('#seperator')[0].scrollHeight;
+    if ($('#seperator')[0])
+      $('#seperator')[0].scrollTop = $('#seperator')[0].scrollHeight;
     break;
 
   case 'roomChatMessage':
     $('#messages').append($(
       '<li/>',
       {
-        text: '[Room] ' + msg.from + ': ' + msg.message
+        text: '[Room]   ' + msg.from + ': ' + msg.message
       }
     ));
-    $('#seperator')[0].scrollTop = $('#seperator')[0].scrollHeight;
+    if ($('#seperator')[0])
+      $('#seperator')[0].scrollTop = $('#seperator')[0].scrollHeight;
     break;
 
   case 'globalServerMessage':
@@ -33,7 +35,8 @@ function handleMessage(msg) {
         text: '[Server] ' + msg.message
       }
     ));
-    $('#seperator')[0].scrollTop = $('#seperator')[0].scrollHeight;
+    if ($('#seperator')[0])
+      $('#seperator')[0].scrollTop = $('#seperator')[0].scrollHeight;
     break;
 
   case 'newQuestion':
@@ -47,10 +50,16 @@ function handleMessage(msg) {
     startPractice();
     break;
 
+  case 'newRoom':
+    $('#messages').append(
+      '<li>[Server] <a href="' + '/room/' + msg.message + '">' + msg.message + ' has created a new room!</a></li>'
+    );
+    break;
+
   case 'error':
     switch (msg.message) {
     case 'noRoom':
-      window.location.replace('/login');
+      window.location.replace('/');
       break;
     case 'noToken':
       alert('no token');
@@ -94,16 +103,19 @@ var message = $('#message');
 
 message.on('keydown', function (e) {
   if (e.which !== 13 || !message.val()) return;
+  
+  var escapedMessage = message.val().replace(/"/g, "\\\"");
+
   if (e.shiftKey) { // global
     connection.send('globalChatMessage');
-    connection.send(message.val());
+    connection.send(escapedMessage);
   } else if (GameConfig.inRoom) {
     connection.send('roomChatMessage');
     connection.send(GameConfig.roomOwner);
-    connection.send(message.val());
+    connection.send(escapedMessage);
   } else {
     connection.send('globalChatMessage');
-    connection.send(message.val());
+    connection.send(escapedMessage);
   }
 
   // clear message box
