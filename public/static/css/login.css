@@ -1,0 +1,55 @@
+html, body {
+  padding: 0;
+  margin: 0;
+}
+
+html { 
+  background-color: #eee;
+  text-align: center;
+}
+
+#background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url(../images/math2.jpg) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  opacity: 0.1;
+  z-index: -1;
+}
+
+#box{
+  margin: auto;
+  height: auto;
+  width: 50%;
+  margin-top: 25%;
+  
+}
+
+#logo {
+  background-color: #eee;
+  background: url(../images/MainTitle.png) no-repeat center center fixed; 
+  height: 50px;
+  width: 100vwmin;
+   
+}
+
+#userpass {
+  margin-right: auto;
+  margin-left: auto;
+  width: 100vwmin;
+}
+
+#username {
+  max-width: 49vwmin;
+  
+}
+
+#password {
+  max-width: 49vwmin;
+}

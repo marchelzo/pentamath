@@ -2,10 +2,10 @@
 <html>
     <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="static/css/play.css">
+    <link rel="stylesheet" href="/static/css/room.css">
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script type="text/javascript" src="static/js/TimeCircles.js"></script>
-    <link rel="stylesheet" href="static/css/TimeCircles.css">
+    <script type="text/javascript" src="/static/js/TimeCircles.js"></script>
+    <link rel="stylesheet" href="/static/css/TimeCircles.css">
     <title>pentamath - room</title>
     </head>
     <body>
@@ -17,16 +17,15 @@
             <div id="lobby">
               Room - Smuhackaweek
             </div>
-            <div id="question">
-              
+            <div id="question_box">
+              <p id="question">2+2</p>
             </div>
-            <div id="time">
-            </div>
-            <div>
+            <div id="time" data-timer="15"/>
+              <div>
               <input type="tel" id="answerbox" />
+             </div>
             </div>
-          </div>
-          <div id="messagebox">
+            <div id="messagebox">
               <div id="seperator">
                 <ul id="messages">
                 </ul>
@@ -74,10 +73,23 @@
             }
               
             });
+
+            function zeroTime(unit, value, total)
+            {
+                if (total == 0)
+                {
+                    console.log("zero");
+                    document.getElementById("question").innerHTML = "Out Of Time!";
+                }else{
+
+                }
+            }
           
-          document.querySelector('#answerbox').addEventListener('keypress', function(e){
+            document.querySelector('#answerbox').addEventListener('keypress', function(e){
               var key = e.which || e.keyCode;
               if(key === 13) {
+                $("#time").TimeCircles({count_past_zero: false, total_duration: 15, time: { Days: { show: false }, Hours: { show: false }, Minutes: { show: false }, Seconds: { text: "Seconds Left"} }}); 
+                $('#time').TimeCircles().addListener(zeroTime);
                 connection.send(answerbox.value);
                 document.getElementById("answerbox").value = "";
             }
@@ -88,40 +100,7 @@
                 connection.send(getCookie('pentamath-uid'));
             };
           
-          $(function() {
           
-            $("#time").TimeCircles({
-              "animation": "smooth",
-              "count_past_zero": false,
-              "use_background": false,
-              "fg_width": 0.04,
-              "circle_bg_color": "#EEEEEE",
-              "time": {
-                  "Days": {
-                      "text": "Days",
-                      "color": "#CCCCCC",
-                      "show": false
-                  },
-                  "Hours": {
-                      "text": "Hours",
-                      "color": "#CCCCCC",
-                      "show": false
-                  },
-                  "Minutes": {
-                      "text": "Minutes",
-                      "color": "#CCCCCC",
-                      "show": false
-                  },
-                  "Seconds": {
-                      "text": "Seconds",
-                      "color": "#4090e9",
-                      "show": true
-                  }
-              },
-              "total_duration": 15});
-
-          });
-
         </script>
     </body>
 </html>

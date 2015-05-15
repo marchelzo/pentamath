@@ -43,13 +43,15 @@ html {
   
 }
 
-#question {
+#question_box {
   height: 100px;
   border: 1px solid green;
 }
 
 #time {
-  
+  height: 59px;
+  width: 100vw;
+  float: right;
 }
 
 #answerbox {
