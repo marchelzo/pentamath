@@ -31,14 +31,8 @@ html {
   background-color: #eee; 
 }
 
-#logo {
-  background-color: #eee;
-  background: url(../images/MainTitle.png) no-repeat center center fixed; 
-  border: 1px solid red;
-}
-
 #lobby {
-  width: 100vw;
+  width: 50vw;
   float: left;
   text-align: left;
 }
@@ -52,9 +46,9 @@ html {
 
 #time {
   height: 200px;
-  width: 20vw;
-  position: absolute;
-  left: 40vw;
+  margin-left: auto;
+  margin-right: auto;
+  display: none;
 }
 
 #answer {
