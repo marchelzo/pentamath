@@ -97,7 +97,7 @@ newUser state user@(username, connection) = do
 
 sendPracticeProblems :: User -> IO ()
 sendPracticeProblems (_, connection) = do
-  problems <- replicateM 5 (randomProblem Insane)
+  problems <- replicateM 5 (randomProblem VeryEasy)
   let problemArray = "[" <> mconcat (intersperse "," ["\"" <> p <> "\"" | p <- (map string problems)]) <> "]"
   let answerArray = "[" <> mconcat (intersperse "," ["\"" <> a <> "\"" | a <- (map answer problems)]) <> "]"
   let response = "{\"type\": \"practiceProblems\", \"problems\": " <> problemArray <> ", \"answers\": " <> answerArray <> "}"
@@ -134,6 +134,10 @@ createNewRoom state user@(username, connection) = do
   let competitors = if ownerPlays then [user] else []
   let room = GameRoom user ownerPlays competitors Map.empty []
   modifyMVar_ state $ \s -> return $ s { rooms = Map.insert username room (rooms s) }
+
+  -- | broadcast the new room
+  cs <- (map snd . clients) <$> readMVar state
+  forM_ cs $ \c -> sendTextData c (encodeMessage "newRoom" username)
 
   -- | continue dispatching chat messages, etc. but check for 'start'
   let loop = do
