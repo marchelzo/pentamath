@@ -1,22 +1,13 @@
 'use strict';
 
-function handleMessage(msg) {
+function messageHandler(msg) {
   switch (msg.type) {
 
   case 'globalChatMessage':
     $('#messages').append($(
       '<li/>',
       {
-        text: '[Global] ' + msg.from + ': ' + msg.message
-      }
-    ));
-    break;
-
-  case 'roomChatMessage':
-    $('#messages').append($(
-      '<li/>',
-      {
-        text: '[Room] ' + msg.from + ': ' + msg.message
+        content: '[Global] ' + msg.from + ': ' + msg.message
       }
     ));
     break;
@@ -25,7 +16,7 @@ function handleMessage(msg) {
     $('#messages').append($(
       '<li/>',
       {
-        text: '[Server] ' + msg.message
+        content: '[Server] ' + msg.from + ': ' + msg.message
       }
     ));
     break;
@@ -33,12 +24,6 @@ function handleMessage(msg) {
   case 'newQuestion':
     $('#question').html(msg.message);
     MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    break;
-
-  case 'practiceProblems':
-    problemList = msg.problems;
-    answerList = msg.answers;
-    startPractice();
     break;
 
   }
@@ -57,17 +42,15 @@ connection.onopen = function () {
 }
 
 connection.onmessage = function (msg) {
-  console.log(msg.data);
   try {
     handleMessage(JSON.parse(msg.data));
   } catch (e) {
     // Invalid JSON
-    console.log(e.stack);
   }
 };
 
 // message sending event listeners
-var message = $('#message');
+var message = $('#message')
 
 message.on('keydown', function (e) {
   if (e.which !== 13) return;
@@ -78,15 +61,4 @@ message.on('keydown', function (e) {
     connection.send(GameConfig.inRoom ? 'roomChatMessage' : 'globalChatMessage');
     connection.send(message.val());
   }
-
-  // clear message box
-  message.val('');
-});
-
-var answer = $('#answer');
-
-answer.on('keydown', function (e) {
-  if (e.which !== 13) return;
-  handleAnswer(answer.val());
-  answer.val('');
 });
