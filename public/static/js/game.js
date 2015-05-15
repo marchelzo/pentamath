@@ -1,5 +1,8 @@
 'use strict';
 
+// use a monospaced font for chat messages
+$('#messages').css('font-family', 'monospace');
+
 function handleMessage(msg) {
   switch (msg.type) {
 
@@ -47,11 +50,11 @@ function handleMessage(msg) {
   case 'error':
     switch (msg.message) {
     case 'noRoom':
-      //window.location.replace('/login');
+      window.location.replace('/login');
       break;
     case 'noToken':
       alert('no token');
-      //window.location.href = (GameConfig.host + ':5000/login');
+      window.location.replace('/login');
       break;
     case 'serverError':
       alert('The server is having problems. Please try again in a few minutes');

@@ -141,4 +141,5 @@ html {
 
 #lobby_difficulty, #lobby_playing, #lobby_button {
   margin-top: 5px;
+  font-family: Helvetica;
 }
