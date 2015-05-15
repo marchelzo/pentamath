@@ -78,6 +78,7 @@
           $(function() {
             $("#time").TimeCircles({count_past_zero: false, total_duration: 15, time: { Days: { show: false }, Hours: { show: false }, Minutes: { show: false }, Seconds: { text: "Seconds Left"} }}); 
             $('#time').TimeCircles().restart();
+            $('#time').TimeCircles().stop();
             $('#time').TimeCircles().addListener(function (unit, value, total) {
               if (total === 0) {
                 connection.send('OUT OF TIME');
