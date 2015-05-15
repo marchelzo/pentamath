@@ -70,5 +70,20 @@
           };
         </script>
         <script src="/static/js/game.js"></script>
+        <script type="text/javascript">
+          send.addEventListener('click', function () {
+                connection.send(message.value);
+                document.getElementById("message").value = "";
+            });
+          
+                document.querySelector('#textline').addEventListener('keypress', function(e){
+              var key = e.which || e.keyCode;
+              if(key === 13) {
+                connection.send(message.value);
+                document.getElementById("message").value = "";
+            }
+              
+            });
+        </script>
     </body>
 </html>
