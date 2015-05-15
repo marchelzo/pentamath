@@ -57,7 +57,12 @@ def signup():
 
     # register user
     hash = generate_password_hash(request.form['password'])
-    cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s)', (request.form['username'], hash))
+    cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s) RETURNING id', (request.form['username'], hash))
+
+    user_id = int(cursor.fetchone()[0])
+
+    # initialize user's gameplay statistics
+    cursor.execute('INSERT INTO stats VALUES (%s, 0, 0, 0, 0, 0)', (user_id,))
 
     # commit changes to db
     db_connection.commit()
@@ -116,6 +121,18 @@ def room(user):
         return render_template('room.html', host=HOST, owner=user)
     else:
         return redirect(url_for('login'), code=302)
+
+@app.route('/submitscore', methods=['POST'])
+def submit_score():
+    if 'username' not in session: return
+    username = session['username']
+    cursor.execute('SELECT id FROM users WHERE username = %s', (username,))
+    user_id = int(cursor.fetchone()[0])
+    cursor.execute('UPDATE stats SET ' + request.form['gameMode'] + ' = ' + request.form['gameMode'] + ' + 1, correct = correct + %s, total = total + 5 WHERE user_id = %s',
+            (int(request.form['correct']), user_id))
+    db_connection.commit()
+
+    return success()
 
 @app.before_request
 def update_session():
