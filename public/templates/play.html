@@ -28,13 +28,22 @@
           <a href="#" id="create" class="myButton">Create Game</a>
         </div>
         </div>
+        <div id="versus_options">
+        <div id="versus_name">
+          User To Challenge: 
+          <input type="text" id="versus_user"/>
+        </div>
+        <div id="versus_button">
+          <a href="#" id="create" class="myButton">Challenge!</a>
+        </div>
+        </div>
         <div id="logo">
           <img style="height:auto; width:100%; " src="/static/images/MainTitle.png">
         </div>
         <div>
           <a href="/practice" id="practice" class="myButton">Practice</a>
           <a id="lobby" class="myButton">Lobby</a>
-          <a href="" id="versus" class="myButton">Versus</a>
+          <a id="versus" class="myButton">Versus</a>
         </div>
         <div id="background"></div>
         <div id="messagebox">
@@ -58,7 +67,14 @@
           $('#fade').on('click',function () {
             $('#fade').css('display', 'none');
             $('#lobby_options').css('display', 'none');
+            $('#versus_options').css('display', 'none');
           });  
+        </script>
+        <script type="text/javascript">
+          $('#versus').on('click', function () {
+            $('#fade').css('display', 'block');
+            $('#versus_options').css('display', 'block');
+          });
         </script>
         <script>
           var GameConfig = {
