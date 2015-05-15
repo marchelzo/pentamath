@@ -25,6 +25,8 @@ html {
 
 #face {
   width: 100vw;
+  background-color: #eee;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
   height: auto;
@@ -37,9 +39,18 @@ html {
   text-align: left;
 }
 
+#question_number {
+  width: 50vw;
+  float: right;
+  text-align: right;
+}
+
 #question_box {
+  width: 100vw;
+  text-align: center;
   height: 100px;
 }
+
 #question {
   font-size: 4rem;
 }
