@@ -11,7 +11,7 @@
         <div id="lobby_header">Lobby Options</div>
         <div id="lobby_difficulty">
           Difficulty: 
-          <select>
+          <select id="difficulty">
             <option>easy</option>
             <option>medium</option>
             <option>hard</option>
@@ -19,7 +19,7 @@
         </div>
         <div id="lobby_playing">
           Are you playing: 
-          <select>
+          <select id="playing">
             <option>yes</option>
             <option>no</option>
           </select>
@@ -64,7 +64,13 @@
           var GameConfig = {
             host: '{{ host }}',
             port: 8000,
-            inRoom: false
+            inRoom: false,
+            onOpen: function () {
+              $('#create').on('click', function () {
+                var difficulty = $('#difficulty').find(':selected').text();
+                console.log(difficulty);
+              });
+            }
           };
         </script>
         <script type="text/javascript" src="/static/js/game.js"></script>
