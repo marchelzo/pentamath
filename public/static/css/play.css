@@ -24,8 +24,15 @@ html {
   z-index: -1;
 }
 
+#logo {
+  background-color: #eee;
+  background: url(../images/MainTitle.png) no-repeat center center fixed; 
+  width: 70%;
+}
+
 #messagebox {
-  background-color: #eee; 
+  background-color: #eee;
+  margin-top: 10%;
   margin-left: auto;
   margin-right: auto;
   width: 70%;
@@ -59,24 +66,6 @@ html {
   text-align: left;
 }
 
-
-#practice, #lobby, #versus, #create,{
-  display: inline-block;
-  transition: 0.1s ease-in-out;
-  height: 2rem;
-  width: 16rem;
-  background-color: #4090e9;
-  color: #eee;
-  margin-top: 10%;
-  margin-bottom: 5%;
-  font-family: Arial;
-  font-size: 1.6rem;
-  line-height: 2rem;
-  text-align: center;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .myButton {
   -moz-box-shadow: 0px 10px 14px -7px #276873;
   -webkit-box-shadow: 0px 10px 14px -7px #276873;
@@ -96,13 +85,15 @@ html {
   cursor:pointer;
   color:#ffffff;
   font-family:Arial;
+  margin-top: 5%;
+  margin-left: 3%;
+  margin-right: 3%;
   font-size:20px;
   font-weight:bold;
   padding:13px 32px;
-  margin-left: 5%;
-  margin-right: 5%;
-  text-decoration:none;
+  text-decoration: none;
   text-shadow:0px 1px 0px #3d768a;
+  width: 5rem;
 }
 .myButton:hover {
   background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #3373BA), color-stop(1, #4090e9));
@@ -134,9 +125,11 @@ html {
   background-color: #eee;
   z-index: 4;
   top: 5vh;
-  position: relative;
-  width: 30rem;
-  margin: auto;
+  position: fixed;
+  width: 50%;
+  min-width:220px;
+  margin-left: 25%;
+  margin-right: 25%;
   display: none;
 }
 
