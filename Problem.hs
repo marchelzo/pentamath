@@ -1,6 +1,15 @@
-module Problem where
+{-# LANGUAGE OverloadedStrings #-}
+
+module Problem (
+    Difficulty(..)
+  , ProblemType(..)
+  , Problem(..)
+  , randomProblem
+) where
 
 import System.Random
+import Data.Text
+import Data.Monoid ((<>))
 
 randomInt :: (Int, Int) -> IO Int
 randomInt = randomRIO
@@ -21,8 +30,8 @@ data ProblemType = Addition
 
 data Problem = Problem {
     difficulty :: Difficulty
-  , answer     :: String
-  , string     :: String
+  , answer     :: Text
+  , string     :: Text
   , kind       :: ProblemType
 }
 
@@ -30,7 +39,7 @@ addition :: Difficulty -> IO Problem
 addition d = do
   a <- randomInt (low, high)
   b <- randomInt (low, high)
-  return $ Problem d (show (a + b)) (show a ++ " + " ++ show b) Addition
+  return $ Problem d ((pack . show) (a + b)) ((pack . show) a <> " + " <> (pack . show) b) Addition
   where
     (low, high) = case d of
       VeryEasy -> (1,    10)
@@ -44,7 +53,7 @@ subtraction :: Difficulty -> IO Problem
 subtraction d = do
   a <- randomInt (low, high)
   b <- randomInt (low, high)
-  return $ Problem d (show (a - b)) (show a ++ " - " ++ show b) Subtraction
+  return $ Problem d ((pack . show) (a - b)) ((pack . show) a <> " - " <> (pack . show) b) Subtraction
   where
     (low, high) = case d of
       VeryEasy -> (1,    10)
@@ -59,7 +68,7 @@ multiplication :: Difficulty -> IO Problem
 multiplication d = do
   a <- randomInt (low, high)
   b <- randomInt (low, high)
-  return $ Problem d (show (a * b)) (show a ++ " \\times " ++ show b) Multiplication
+  return $ Problem d ((pack . show) (a * b)) ((pack . show) a <> " \\\\times " <> (pack . show) b) Multiplication
   where
     (low, high) = case d of
       VeryEasy -> (2,  5)
@@ -74,7 +83,7 @@ division d = do
   a <- randomInt (low, high)
   b <- randomInt (low, high)
   if a `rem` b == 0 && a /= b
-  then return $ Problem d (show (a `div` b)) (show a ++ " \\div " ++ show b) Division
+  then return $ Problem d ((pack . show) (a `div` b)) ((pack . show) a <> " \\\\div " <> (pack . show) b) Division
   else division d
   where
     (low, high) = case d of
