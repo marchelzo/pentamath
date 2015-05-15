@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="/static/css/room.css">
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript" src="/static/js/TimeCircles.js"></script>
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="stylesheet" href="/static/css/TimeCircles.css">
     <title>pentamath - Room</title>
     </head>
@@ -17,10 +18,10 @@
             </div>
                 <div id="time" data-timer="15"></div>
             <div id="question_box">
-              <p id="question">2+2</p>
+              <p id="question"></p>
             </div>
               <div>
-              <input type="tel" id="answerbox" />
+              <input type="tel" id="answer" />
              </div>
             </div>
             <div id="messagebox">
@@ -36,14 +37,30 @@
         </div>
 
         <script>
+
+          'use strict';
+
           var GameConfig = {
             host: '{{ host }}',
             port: 8000,
             inRoom: true,
             roomOwner: '{{ owner }}',
+            own: {{ own }},
             onOpen: function () {
-              connection.send('joinRoom');
-              connection.send(GameConfig.roomOwner);
+              console.log('own: ' + GameConfig.own);
+              if (GameConfig.own) {
+                connection.send('newRoom');
+                connection.send('true');
+                GameConfig.onSend = function (command) {
+                  if (command === '/start') {
+                    connection.send('start');
+                    $('#message').val('');
+                  }
+                }
+              } else {
+                connection.send('joinRoom');
+                connection.send(GameConfig.roomOwner);
+              }
             }
           };
         </script>
@@ -52,16 +69,22 @@
 
         <script>
 
-          
-            document.querySelector('#answerbox').addEventListener('keypress', function(e){
-              var key = e.which || e.keyCode;
-              if(key === 13) {
-                $("#time").TimeCircles({count_past_zero: false, total_duration: 15, time: { Days: { show: false }, Hours: { show: false }, Minutes: { show: false }, Seconds: { text: "Seconds Left"} }}); 
-                $('#time').TimeCircles().addListener(zeroTime);
-                document.getElementById("answerbox").value = "";
-            }
-              
+          function handleAnswer(ans) {
+            console.log('SENDING ANSWER: ' + ans);
+            connection.send(ans);
+            $('#time').TimeCircles().stop();
+          }
+
+
+          $(function() {
+            $("#time").TimeCircles({count_past_zero: false, total_duration: 15, time: { Days: { show: false }, Hours: { show: false }, Minutes: { show: false }, Seconds: { text: "Seconds Left"} }}); 
+            $('#time').TimeCircles().restart();
+            $('#time').TimeCircles().addListener(function (unit, value, total) {
+              if (total === 0) {
+                connection.send('OUT OF TIME');
+              }
             });
+          });
           
         </script>
     </body>

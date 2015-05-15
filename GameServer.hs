@@ -121,8 +121,15 @@ joinRoom state user@(username, connection) = do
   roomOwner <- receiveData connection :: IO Text
   rs <- rooms <$> readMVar state
   if Map.member roomOwner rs
-  then modifyMVar_ state $ \s -> return $ s { rooms = addUser (rooms s) roomOwner }
+  then do
+    others <- (competitors . (Map.! roomOwner) . rooms) <$> readMVar state
+    forM_ (map snd others) $ \c -> sendTextData c $ encodeMessage "userJoinedRoom" username
+    let message = "[" <> mconcat (intersperse "," (map ((\t -> "\"" <> t <> "\"") . fst) others)) <> "]"
+    sendTextData connection $ encodeMessage "userList" message
+    modifyMVar_ state $ \s -> return $ s { rooms = addUser (rooms s) roomOwner }
   else sendTextData connection (errorMessage "noRoom")
+
+  threadDelay 1000000000000
 
   where
     addUser rooms owner = Map.adjust (\g -> g { competitors = user : competitors g, scoreboard = Map.insert username 0 (scoreboard g) }) owner rooms
@@ -132,7 +139,8 @@ joinRoom state user@(username, connection) = do
 createNewRoom state user@(username, connection) = do
   ownerPlays <- (== ("true" :: Text)) <$> receiveData connection
   let competitors = if ownerPlays then [user] else []
-  let room = GameRoom user ownerPlays competitors Map.empty []
+  let scoreboard = if ownerPlays then Map.singleton username 0 else Map.empty
+  let room = GameRoom user ownerPlays competitors scoreboard []
   modifyMVar_ state $ \s -> return $ s { rooms = Map.insert username room (rooms s) }
 
   -- | broadcast the new room
@@ -164,15 +172,19 @@ startRoom :: MVar GameServer -> User -> IO ()
 startRoom state owner = do
   ps <- (competitors . (Map.! (fst owner)) . rooms) <$> readMVar state
 
-  questions <- replicateM 5 (randomProblem Hard)
+  questions <- replicateM 5 (randomProblem VeryEasy)
 
   putStrLn "ABOUT TO START"
+
+  putStrLn "PLAYERS:"
+  mapM_ TIO.putStrLn (map fst ps)
 
   forM_ questions $ \q -> do
     broadcastQuestion ps q
     putStrLn "SENT QUESTION"
     answers <- mapConcurrently getAnswer ps
     putStrLn "GOT ANSWERS"
+    mapM_ TIO.putStrLn (map (\(a,b,c) -> b) answers)
     updateScores q answers >>= broadcastScoreboard ps
 
   where
@@ -197,8 +209,10 @@ startRoom state owner = do
       
 getAnswer :: User -> IO (Text, Text, Int)
 getAnswer (username, connection) = do
+  TIO.putStrLn $ "Getting answer from: " <> username
   start  <- getTime Monotonic
   answer <- receiveData connection
+  TIO.putStrLn $ "Got answer from: " <> username <> " ---- " <> answer
   end <- getTime Monotonic
   let elapsed = fromIntegral $ sec end - sec start
   return (username, answer, elapsed)

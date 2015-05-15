@@ -41,6 +41,8 @@ function handleMessage(msg) {
 
   case 'newQuestion':
     $('#question').html(msg.message);
+    $('#time').TimeCircles().restart();
+    $('#time').TimeCircles().start();
     MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
     break;
 
@@ -53,6 +55,12 @@ function handleMessage(msg) {
   case 'newRoom':
     $('#messages').append(
       '<li>[Server] <a href="' + '/room/' + msg.message + '">' + msg.message + ' has created a new room!</a></li>'
+    );
+    break;
+
+  case 'userJoinedRoom':
+    $('#messages').append(
+      '<li>[Room]   ' + msg.message + ' has joined the room!</li>'
     );
     break;
 
@@ -94,6 +102,7 @@ connection.onmessage = function (msg) {
   } catch (e) {
     // Invalid JSON
     console.log(e.stack);
+    console.log('Invalid: ' + msg.data);
   }
   if (GameConfig.onMessage) GameConfig.onMessage(msg.data);
 };
@@ -101,8 +110,12 @@ connection.onmessage = function (msg) {
 // message sending event listeners
 var message = $('#message');
 
-message.on('keydown', function (e) {
+message.on('keypress', function (e) {
   if (e.which !== 13 || !message.val()) return;
+
+  if (GameConfig.onSend) GameConfig.onSend(message.val());
+
+  if (message.val() === '') return;
   
   var escapedMessage = message.val().replace(/"/g, "\\\"");
 
@@ -124,7 +137,7 @@ message.on('keydown', function (e) {
 
 var answer = $('#answer');
 
-answer.on('keydown', function (e) {
+answer.on('keypress', function (e) {
   if (e.which !== 13) return;
   handleAnswer(answer.val());
   answer.val('');
