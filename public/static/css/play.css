@@ -142,11 +142,24 @@ html {
   display: none;
 }
 
+#versus_options {
+  padding: 5px;
+  background-color: #eee;
+  z-index: 4;
+  top: 5vh;
+  position: fixed;
+  width: 50%;
+  min-width:220px;
+  margin-left: 25%;
+  margin-right: 25%;
+  display: none;
+}
+
 #lobby_header {
   border-bottom: 1px solid black;
 }
 
 #lobby_difficulty, #lobby_playing{
-  margin-top: 5px;
+  margin-top: 5%;
   font-family: Helvetica;
 }
