@@ -114,6 +114,10 @@ html {
   top:1px;
 }
 
+#create {
+  width: 8rem;
+}
+
 #fade {
   position: fixed;
   width: 100%;
@@ -141,7 +145,7 @@ html {
   border-bottom: 1px solid black;
 }
 
-#lobby_difficulty, #lobby_playing, #lobby_button {
+#lobby_difficulty, #lobby_playing{
   margin-top: 5px;
   font-family: Helvetica;
 }
