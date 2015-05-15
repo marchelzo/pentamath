@@ -85,10 +85,19 @@ newUser state user@(username, connection) = do
           "roomChatMessage"   -> doRoomMessage state user
           "newRoom"           -> createNewRoom state user
           "joinRoom"          -> joinRoom state user
+          "practiceProblems"  -> sendPracticeProblems user
           _                   -> return ()
         loop
 
   loop
+
+sendPracticeProblems :: User -> IO ()
+sendPracticeProblems (_, connection) = do
+  problems <- replicateM 5 (randomProblem Insane)
+  let problemArray = "[" <> mconcat (intersperse "," ["\"" <> p <> "\"" | p <- (map string problems)]) <> "]"
+  let answerArray = "[" <> mconcat (intersperse "," ["\"" <> a <> "\"" | a <- (map answer problems)]) <> "]"
+  let response = "{\"type\": \"practiceProblems\", \"problems\": " <> problemArray <> ", \"answers\": " <> answerArray <> "}"
+  sendTextData connection response
 
 doRoomMessage :: MVar GameServer -> User -> IO ()
 doRoomMessage state user@(username, connection) = do
