@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/css/room.css">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/TimeCircles.js"></script>
+    <link rel="stylesheet" href="/static/css/TimeCircles.css">
+    <title>pentamath - Room</title>
+    </head>
+    <body>
+        <div id="background"></div>
+        <div id="face">
+          <div id="logo"></div>
+          <div id="game">
+            <div id="lobby">
+            </div>
+                <div id="time" data-timer="15"></div>
+            <div id="question_box">
+              <p id="question">2+2</p>
+            </div>
+              <div>
+              <input type="tel" id="answerbox" />
+             </div>
+            </div>
+            <div id="messagebox">
+              <div id="seperator">
+                <ul id="messages">
+                </ul>
+              </div>
+              <div id="textline">
+                <input type="text" id="message" placeholder="Shift+Enter For Global Message"/>
+                <button id="send">Send</button>
+              </div>
+          </div>
+        </div>
+
+        <script>
+          var GameConfig = {
+            host: '{{ host }}',
+            port: 8000,
+            inRoom: true,
+            roomOwner: '{{ owner }}',
+            onOpen: function () {
+              connection.send('joinRoom');
+              connection.send(GameConfig.roomOwner);
+            }
+          };
+        </script>
+
+        <script src="/static/js/game.js"></script>
+
+        <script>
+
+          
+            document.querySelector('#answerbox').addEventListener('keypress', function(e){
+              var key = e.which || e.keyCode;
+              if(key === 13) {
+                $("#time").TimeCircles({count_past_zero: false, total_duration: 15, time: { Days: { show: false }, Hours: { show: false }, Minutes: { show: false }, Seconds: { text: "Seconds Left"} }}); 
+                $('#time').TimeCircles().addListener(zeroTime);
+                document.getElementById("answerbox").value = "";
+            }
+              
+            });
+          
+        </script>
+    </body>
+</html>

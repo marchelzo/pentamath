@@ -7,11 +7,14 @@
     </head>
     <body>
     <div id="fade"></div>
+    <div id="logout">
+      <a href="/logout" id="logout_button">Logout</a>
+    </div>
       <div id="lobby_options">
         <div id="lobby_header">Lobby Options</div>
         <div id="lobby_difficulty">
           Difficulty: 
-          <select id="difficulty">
+          <select>
             <option>easy</option>
             <option>medium</option>
             <option>hard</option>
@@ -19,7 +22,7 @@
         </div>
         <div id="lobby_playing">
           Are you playing: 
-          <select id="playing">
+          <select>
             <option>yes</option>
             <option>no</option>
           </select>
@@ -80,18 +83,7 @@
           var GameConfig = {
             host: '{{ host }}',
             port: 8000,
-            inRoom: false,
-            onOpen: function () {
-              $('#create').on('click', function () {
-                var difficulty = $('#difficulty').find(':selected').text();
-                var playing = $('#playing').find(':selected').text();
-                $('<form action="/createroom" method="POST" />')
-                  .append($('<input type="hidden" name="playing" value="' + playing + '">'))
-                  .append($('<input type="hidden" name="difficulty" value="' + difficulty + '">'))
-                  .appendTo($(document.body))
-                  .submit();
-              });
-            }
+            inRoom: false
           };
         </script>
         <script type="text/javascript" src="/static/js/game.js"></script>
