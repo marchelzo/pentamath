@@ -121,7 +121,12 @@ joinRoom state user@(username, connection) = do
   roomOwner <- receiveData connection :: IO Text
   rs <- rooms <$> readMVar state
   if Map.member roomOwner rs
-  then modifyMVar_ state $ \s -> return $ s { rooms = addUser (rooms s) roomOwner }
+  then do
+    others <- (competitors . (Map.! roomOwner) . rooms) <$> readMVar state
+    forM_ (map snd others) $ \c -> sendTextData c $ encodeMessage "userJoinedRoom" username
+    let message = "[" <> mconcat (intersperse "," (map ((\t -> "\"" <> t <> "\"") . fst) others)) <> "]"
+    sendTextData connection $ encodeMessage "userList" message
+    modifyMVar_ state $ \s -> return $ s { rooms = addUser (rooms s) roomOwner }
   else sendTextData connection (errorMessage "noRoom")
 
   where
