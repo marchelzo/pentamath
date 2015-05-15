@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric     #-}
 
+import           Data.List (intersperse, sortBy)
+import           Data.Ord (comparing)
 import           Control.Exception
 import           Control.Monad (forM_, void, replicateM)
 import           Data.Monoid ((<>))
@@ -12,8 +14,11 @@ import qualified Data.Text.IO as TIO
 import qualified Data.Map.Strict as Map
 import           Data.Map.Strict (Map(..))
 import           Control.Concurrent
+import           Control.Concurrent.Timeout
 import           Control.Concurrent.Async
 import qualified Database.Redis as Redis
+import           System.Clock
+import           Problem
 
 type User = (Text, Connection)
 
@@ -24,10 +29,11 @@ data Match = Match {
 }
 
 data GameRoom = GameRoom {
-    owner       :: User
-  , competitors :: [User]
-  , scoreboard  :: Map Text Int
-  , questions   :: [Text]
+    owner        :: User
+  , ownerPlaying :: Bool
+  , competitors  :: [User]
+  , scoreboard   :: Map Text Int
+  , questions    :: [Text]
 }
 
 data GameServer = GameServer {
@@ -36,8 +42,9 @@ data GameServer = GameServer {
   , clients    :: [User]
 }
 
-getQuestion :: IO Text
-getQuestion = return "THIS IS A QUESTION"
+-- | Time in seconds to answer a question
+timeLimit :: Int
+timeLimit = 10
 
 encodeMessage :: Text -> Text -> Text
 encodeMessage t msg = "{\"type\": \"" <> t <> "\", \"message\": \"" <> msg <> "\"}"
@@ -75,12 +82,24 @@ newUser state user@(username, connection) = do
         messageType <- receiveData connection :: IO Text
         case messageType of
           "globalChatMessage" -> receiveData connection >>= broadcastGlobalChatMessage state user
+          "roomChatMessage"   -> doRoomMessage state user
           "newRoom"           -> createNewRoom state user
           "joinRoom"          -> joinRoom state user
           _                   -> return ()
         loop
 
   loop
+
+doRoomMessage :: MVar GameServer -> User -> IO ()
+doRoomMessage state user@(username, connection) = do
+  roomOwner <- receiveData connection :: IO Text
+  room <- ((Map.! roomOwner) . rooms) <$> readMVar state
+  message <- receiveData connection :: IO Text
+  let recipients = if ownerPlaying room
+                   then competitors room
+                   else (owner room) : (competitors room)
+  forM_ (map snd recipients) $ \c -> do
+    sendTextData c $ "{\"type\": \"roomChatMessage\", \"from\": \"" <> username <> "\", \"message\": \"" <> message <> "\"}"
 
 -- | ask user for the name of the room owner, and place them in that room
 joinRoom :: MVar GameServer -> User -> IO ()
@@ -92,14 +111,14 @@ joinRoom state user@(username, connection) = do
   else sendTextData connection (errorMessage "No such room!")
 
   where
-    addUser rooms owner = Map.adjust (\g -> g { competitors = user : competitors g }) owner rooms
+    addUser rooms owner = Map.adjust (\g -> g { competitors = user : competitors g, scoreboard = Map.insert username 0 (scoreboard g) }) owner rooms
     
 
 -- | does not currently check for already existing rooms by this user
 createNewRoom state user@(username, connection) = do
-  ownerPlaying <- (== ("true" :: Text)) <$> receiveData connection
-  let competitors = if ownerPlaying then [user] else []
-  let room = GameRoom user competitors Map.empty []
+  ownerPlays <- (== ("true" :: Text)) <$> receiveData connection
+  let competitors = if ownerPlays then [user] else []
+  let room = GameRoom user ownerPlays competitors Map.empty []
   modifyMVar_ state $ \s -> return $ s { rooms = Map.insert username room (rooms s) }
 
   -- | block until another message is received, and then begin the game
@@ -123,40 +142,44 @@ startRoom :: MVar GameServer -> User -> IO ()
 startRoom state owner = do
   ps <- (competitors . (Map.! (fst owner)) . rooms) <$> readMVar state
 
-  questions <- replicateM 5 getQuestion
+  questions <- replicateM 5 (randomProblem Hard)
 
   putStrLn "ABOUT TO START"
 
   forM_ questions $ \q -> do
     broadcastQuestion ps q
     putStrLn "SENT QUESTION"
-    answers <- mapConcurrently (getAnswer 15) ps
+    answers <- mapConcurrently getAnswer ps
     putStrLn "GOT ANSWERS"
-    updateScores answers >>= broadcastScoreboard ps
+    updateScores q answers >>= broadcastScoreboard ps
 
   where
-    updateScores answers = do
+    updateScores q answers = do
       modifyMVar_ state $ \s -> do
         let room = (rooms s) Map.! (fst owner)
-        let newRoom = room { scoreboard = updateScoreboard (scoreboard room) }
+        let newRoom = room { scoreboard = updateScoreboard (scoreboard room) answers }
         return $ s { rooms = Map.adjust (const newRoom) (fst owner) (rooms s) }
       (scoreboard . (Map.! (fst owner)) . rooms) <$> readMVar state
+      where
+        updateScoreboard board [] = board
+        updateScoreboard board (a:as) = case a of
+          (username, answer, elapsed) | elapsed < timeLimit -> updateScoreboard (Map.adjust (scoreModifier answer) username board) as
+                                      | otherwise -> updateScoreboard board as
+        scoreModifier ans
+          | ans == answer q = (+1)
+          | otherwise       = id
 
-    broadcastScoreboard ps board = forM_ ps $ \p -> sendTextData (snd p) (encodeMessage "scoreboardUpdate" "")
-    updateScoreboard = id
-    broadcastQuestion ps q = forM_ ps $ \p -> sendTextData (snd p) $ encodeMessage "newQuestion" q
+    broadcastScoreboard ps board = forM_ ps $ \p -> sendTextData (snd p) (encodeMessage "scoreboardUpdate" (encodeScoreboard board))
+    broadcastQuestion ps q = forM_ ps $ \p -> sendTextData (snd p) $ encodeMessage "newQuestion" (string q)
+    encodeScoreboard board = "{" <> mconcat (intersperse "," ["\"" <> username <> "\": \"" <> (T.pack . show) score <> "\"" | (username, score) <- (sortBy (comparing snd) (Map.toList board))]) <> "}"
       
-getAnswer :: Int -> User -> IO (User, Maybe Text)
-getAnswer timeLimit user@(username, connection) = flip catch ignore $ do
-  result <- race waitForAnswer outOfTime
-  return $ case result of
-    Left answer -> (user, Just answer)
-    Right _     -> (user, Nothing)
-  where
-    outOfTime = threadDelay (timeLimit * 1000000) >> putStrLn "OUT OF TIME"
-    waitForAnswer = receiveData connection :: IO Text
-    ignore :: SomeException -> IO (User, Maybe Text)
-    ignore = const $ return (user, Nothing) 
+getAnswer :: User -> IO (Text, Text, Int)
+getAnswer (username, connection) = do
+  start  <- getTime Monotonic
+  answer <- receiveData connection
+  end <- getTime Monotonic
+  let elapsed = fromIntegral $ sec end - sec start
+  return (username, answer, elapsed)
 
 main :: IO ()
 main = do
