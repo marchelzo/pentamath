@@ -51,6 +51,7 @@ html {
 #time {
   height: 59px;
   width: 100vw;
+  float: right;
 }
 
 #answerbox {
