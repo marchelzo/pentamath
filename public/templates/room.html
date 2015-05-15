@@ -2,10 +2,10 @@
 <html>
     <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="/static/css/room.css">
+    <link rel="stylesheet" href="static/css/play.css">
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script type="text/javascript" src="/static/js/TimeCircles.js"></script>
-    <link rel="stylesheet" href="/static/css/TimeCircles.css">
+    <script type="text/javascript" src="static/js/TimeCircles.js"></script>
+    <link rel="stylesheet" href="static/css/TimeCircles.css">
     <title>pentamath - room</title>
     </head>
     <body>
@@ -78,6 +78,7 @@
           document.querySelector('#answerbox').addEventListener('keypress', function(e){
               var key = e.which || e.keyCode;
               if(key === 13) {
+                $("#time").TimeCircles().start(); });
                 connection.send(answerbox.value);
                 document.getElementById("answerbox").value = "";
             }
@@ -111,7 +112,7 @@
                       "text": "Minutes",
                       "color": "#CCCCCC",
                       "show": false
-                  },
+                  },p
                   "Seconds": {
                       "text": "Seconds",
                       "color": "#4090e9",
