@@ -79,7 +79,7 @@
     };
     var secondsIn = {
         Seconds: 1,
-        Minutes: 60,
+        Minutes: 15,
         Hours: 3600,
         Days: 86400,
         Months: 2678400,
@@ -802,13 +802,13 @@
         ref_date: new Date(),
         start: true,
         animation: "smooth",
-        count_past_zero: true,
+        count_past_zero: false,
         circle_bg_color: "#60686F",
         use_background: true,
         fg_width: 0.1,
         bg_width: 1.2,
         text_size: 0.07,
-        total_duration: "Auto",
+        total_duration: "15",
         direction: "Clockwise",
         use_top_frame: false,
         start_angle: 0,
@@ -830,7 +830,7 @@
             },
             Seconds: {
                 show: true,
-                text: "Seconds",
+                text: "Seconds Left",
                 color: "#4090e9"
             }
         }
