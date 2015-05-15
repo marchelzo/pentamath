@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>pentamath - Practice</title>
+  <link rel="stylesheet" href="/static/css/practice.css">
+</head>
+<body>
+  <div class="performance">
+    <ul></ul>
+    <li class="circle c1"></li>
+    <li class="circle c2 right"></li>
+    <li class="circle c3"></li>
+    <li class="circle c4 wrong"></li>
+    <li class="circle c5"></li>
+  </div>
+  <div class="question"></div>
+  <div class="answer-container">
+    <input type="text" id="answer" />
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+  <script>
+    var GameConfig = {
+      host: '{{ host }}',
+      port: 8000,
+      inRoom: false
+    };
+  </script>
+
+  <script src="/static/js/game.js"></script>
+</body>
+</html>
