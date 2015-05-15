@@ -1,3 +1,4 @@
+
 html, body {
   padding: 0;
   margin: 0;
@@ -28,7 +29,7 @@ html {
   margin-left: auto;
   margin-right: auto;
   width: 60%;
-  height: 10rem;
+  height: 80vh;
   max-height: 30%;
   border: 1px solid black;
 }
@@ -41,6 +42,7 @@ html {
 #message {
   text-align: left;
   width: 80%;
+  
 }
 
 #seperator {
@@ -49,11 +51,8 @@ html {
   overflow-x: hidden;
 }
 
-#messages {
-  text-align: left;
-}
 
-#practice, #room, #versus {
+#practice, #lobby, #versus {
   display: inline-block;
   transition: 0.1s ease-in-out;
   height: 2rem;
@@ -66,8 +65,8 @@ html {
   font-size: 1.6rem;
   line-height: 2rem;
   text-align: center;
-  margin-left: 5%;
-  margin-right: 5%;
+  margin-left: 3%;
+  margin-right: 3%;
 }
 
 .myButton {
@@ -110,4 +109,14 @@ html {
 .myButton:active {
   position:relative;
   top:1px;
+}
+
+#fade {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background: #222;
+  z-index: 3;
+  opacity: 0.9;
+  display: none;
 }
