@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="/static/css/room.css">
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript" src="/static/js/TimeCircles.js"></script>
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="stylesheet" href="/static/css/TimeCircles.css">
     <title>pentamath - Room</title>
     </head>
@@ -17,7 +18,7 @@
             </div>
                 <div id="time" data-timer="15"></div>
             <div id="question_box">
-              <p id="question">2+2</p>
+              <p id="question"></p>
             </div>
               <div>
               <input type="tel" id="answer" />
@@ -69,6 +70,7 @@
         <script>
 
           function handleAnswer(ans) {
+            console.log('SENDING ANSWER: ' + ans);
             connection.send(ans);
             $('#time').TimeCircles().stop();
           }
@@ -76,8 +78,11 @@
 
           $(function() {
             $("#time").TimeCircles({count_past_zero: false, total_duration: 15, time: { Days: { show: false }, Hours: { show: false }, Minutes: { show: false }, Seconds: { text: "Seconds Left"} }}); 
-            $('#time').TimeCircles().addListener(function () {
-              connection.send('OUT OF TIME');
+            $('#time').TimeCircles().restart();
+            $('#time').TimeCircles().addListener(function (unit, value, total) {
+              if (total === 0) {
+                connection.send('OUT OF TIME');
+              }
             });
           });
           

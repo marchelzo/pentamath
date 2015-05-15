@@ -102,6 +102,7 @@ connection.onmessage = function (msg) {
   } catch (e) {
     // Invalid JSON
     console.log(e.stack);
+    console.log('Invalid: ' + msg.data);
   }
   if (GameConfig.onMessage) GameConfig.onMessage(msg.data);
 };
