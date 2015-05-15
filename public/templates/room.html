@@ -78,7 +78,7 @@
           document.querySelector('#answerbox').addEventListener('keypress', function(e){
               var key = e.which || e.keyCode;
               if(key === 13) {
-                $("#time").TimeCircles().start();
+                $(".time").TimeCircles(); 
                 connection.send(answerbox.value);
                 document.getElementById("answerbox").value = "";
             }
@@ -89,43 +89,7 @@
                 connection.send(getCookie('pentamath-uid'));
             };
           
-          $(function() {
           
-            $("#time").TimeCircles({
-              "animation": "smooth",
-              "count_past_zero": false,
-              "use_background": false,
-              "fg_width": 0.04,
-              "circle_bg_color": "#EEEEEE",
-              "time": {
-                  "Days": {
-                      "text": "Days",
-                      "color": "#CCCCCC",
-                      "show": false
-                  },
-                  "Hours": {
-                      "text": "Hours",
-                      "color": "#CCCCCC",
-                      "show": false
-                  },
-                  "Minutes": {
-                      "text": "Minutes",
-                      "color": "#CCCCCC",
-                      "show": false
-                  },
-                  "Seconds": {
-                      "text": "Seconds",
-                      "color": "#4090e9",
-                      "show": true
-                  }
-              },
-              "total_duration": 15});
-
-            $('#time').css('visibility', 'visible');
-            $('#time').TimeCircles().addListener(zeroTime);
-
-          });
-
         </script>
     </body>
 </html>
