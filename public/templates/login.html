@@ -8,7 +8,7 @@
 <body>
   <div id="box">
     <div id="logo"></div>
-    <form method="POST" action="/login">
+    <form method="POST" action="/login" id="form">
     <div id="userpass">
       <input name="username" type="text" id="username" placeholder="username">
       <input name="password" type="password" id="password" placeholder="password">
@@ -17,4 +17,14 @@
   </form>
   </div> 
 </body>
+<script src="/static/js/game.js"></script>
+<script type="text/javascript">
+  document.querySelector('#password').addEventListener('keypress', function(e){
+              var key = e.which || e.keyCode;
+              if(key === 13) {
+                document.getElementById("form").submit();
+            }
+              
+            });
+</script>
 </html>
