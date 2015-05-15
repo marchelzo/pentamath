@@ -170,7 +170,8 @@ broadcastGlobalServerMessage state message = do
 
 startRoom :: MVar GameServer -> User -> IO ()
 startRoom state owner = do
-  ps <- (competitors . (Map.! (fst owner)) . rooms) <$> readMVar state
+  room <- ((Map.! (fst owner)) . rooms) <$> readMVar state
+  let ps = competitors room
 
   questions <- replicateM 5 (randomProblem VeryEasy)
 
@@ -185,6 +186,7 @@ startRoom state owner = do
     answers <- mapConcurrently getAnswer ps
     putStrLn "GOT ANSWERS"
     mapM_ TIO.putStrLn (map (\(a,b,c) -> b) answers)
+    let scoreboardRecipients = if ownerPlaying room then ps else (owner : ps)
     updateScores q answers >>= broadcastScoreboard ps
 
   where

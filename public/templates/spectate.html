@@ -25,7 +25,8 @@
       port: 5000,
       host: '{{ host }}',
       onOpen: function () {
-
+        connection.send('newRoom');
+        connection.send('false');
       }
     };
   </script>
