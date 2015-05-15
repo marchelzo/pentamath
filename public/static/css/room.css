@@ -45,18 +45,10 @@ html {
 }
 
 #time {
-<<<<<<< HEAD
   height: auto;
   width: 20vw;
+  position: relative;
   left: 40vw;
-=======
-  height: 200px;
-  width: 20vw;
-  position: absolute;
-  left: 40vw;
-  margin-left: auto;
-  margin-right: auto;
->>>>>>> c6acefc371c6d86e693522c5a83405770522f29b
   display: none;
 }
 
