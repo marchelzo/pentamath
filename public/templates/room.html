@@ -6,7 +6,7 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript" src="/static/js/TimeCircles.js"></script>
     <link rel="stylesheet" href="/static/css/TimeCircles.css">
-    <title>pentamath - room</title>
+    <title>pentamath - Room</title>
     </head>
     <body>
         <div id="background"></div>
@@ -14,7 +14,6 @@
           <div id="logo"></div>
           <div id="game">
             <div id="lobby">
-              Room - Smuhackaweek
             </div>
                 <div id="time" data-timer="15"></div>
             <div id="question_box">
@@ -35,70 +34,34 @@
               </div>
           </div>
         </div>
+
+        <script>
+          var GameConfig = {
+            host: '{{ host }}',
+            port: 8000,
+            inRoom: true,
+            roomOwner: '{{ owner }}',
+            onOpen: function () {
+              connection.send('joinRoom');
+              connection.send(GameConfig.roomOwner);
+            }
+          };
+        </script>
+
+        <script src="/static/js/game.js"></script>
+
         <script>
 
-            'use strict';
-
-            function getCookie(name) {
-              var value = "; " + document.cookie;
-              var parts = value.split("; " + name + "=");
-              if (parts.length == 2) return parts.pop().split(";").shift();
-            }
-
-            var msgList = document.getElementById("messages");
-            var connection = new WebSocket('ws://{{ host }}:8000');
-            var message = document.getElementById("message");
-            var send = document.getElementById("send");
-        
-
-            connection.onmessage = function (msg) {
-                var response = JSON.parse(msg.data);
-                if (response.type === 'globalChatMessage')
-                  messages.innerHTML += ("<li>" + response.from + ': ' + response.message + "</li>");
-                else
-                  messages.innerHTML += ("<li>" + 'SERVER: ' + response.message + "</li>");
-            };
-
-            send.addEventListener('click', function () {
-                connection.send(message.value);
-                document.getElementById("message").value = "";
-            });
-          
-                document.querySelector('#textline').addEventListener('keypress', function(e){
-              var key = e.which || e.keyCode;
-              if(key === 13) {
-                connection.send(message.value);
-                document.getElementById("message").value = "";
-            }
-              
-            });
-
-            function zeroTime(unit, value, total)
-            {
-                if (total == 0)
-                {
-                    console.log("zero");
-                    document.getElementById("question").innerHTML = "Out Of Time!";
-                }else{
-
-                }
-            }
           
             document.querySelector('#answerbox').addEventListener('keypress', function(e){
               var key = e.which || e.keyCode;
               if(key === 13) {
                 $("#time").TimeCircles({count_past_zero: false, total_duration: 15, time: { Days: { show: false }, Hours: { show: false }, Minutes: { show: false }, Seconds: { text: "Seconds Left"} }}); 
                 $('#time').TimeCircles().addListener(zeroTime);
-                connection.send(answerbox.value);
                 document.getElementById("answerbox").value = "";
             }
               
             });
-
-            connection.onopen = function () {
-                connection.send(getCookie('pentamath-uid'));
-            };
-          
           
         </script>
     </body>

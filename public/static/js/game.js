@@ -10,6 +10,7 @@ function handleMessage(msg) {
         text: '[Global] ' + msg.from + ': ' + msg.message
       }
     ));
+    $('#seperator')[0].scrollTop = $('#seperator')[0].scrollHeight;
     break;
 
   case 'roomChatMessage':
@@ -19,6 +20,7 @@ function handleMessage(msg) {
         text: '[Room] ' + msg.from + ': ' + msg.message
       }
     ));
+    $('#seperator')[0].scrollTop = $('#seperator')[0].scrollHeight;
     break;
 
   case 'globalServerMessage':
@@ -28,6 +30,7 @@ function handleMessage(msg) {
         text: '[Server] ' + msg.message
       }
     ));
+    $('#seperator')[0].scrollTop = $('#seperator')[0].scrollHeight;
     break;
 
   case 'newQuestion':
@@ -40,6 +43,14 @@ function handleMessage(msg) {
     answerList = msg.answers;
     startPractice();
     break;
+
+  case 'error':
+    switch (msg.message) {
+    case 'noRoom':
+      window.location.href = '/';
+      break;
+    }
+  break;
 
   }
 }
@@ -54,6 +65,7 @@ var connection = new WebSocket('ws://' + GameConfig.host + ':' + GameConfig.port
 
 connection.onopen = function () {
   connection.send(getCookie('pentamath-uid'));
+  if (GameConfig.onOpen) GameConfig.onOpen();
 }
 
 connection.onmessage = function (msg) {
@@ -64,18 +76,23 @@ connection.onmessage = function (msg) {
     // Invalid JSON
     console.log(e.stack);
   }
+  if (GameConfig.onMessage) GameConfig.onMessage(msg.data);
 };
 
 // message sending event listeners
 var message = $('#message');
 
 message.on('keydown', function (e) {
-  if (e.which !== 13) return;
+  if (e.which !== 13 || !message.val()) return;
   if (e.shiftKey) { // global
     connection.send('globalChatMessage');
     connection.send(message.val());
-  } else { // room
-    connection.send(GameConfig.inRoom ? 'roomChatMessage' : 'globalChatMessage');
+  } else if (GameConfig.inRoom) {
+    connection.send('roomChatMessage');
+    connection.send(GameConfig.roomOwner);
+    connection.send(message.val());
+  } else {
+    connection.send('globalChatMessage');
     connection.send(message.val());
   }
 
