@@ -2,15 +2,39 @@
 <html>
     <head>
       <meta charset="UTF-8">
-      <link rel="stylesheet" href="static/css/play.css">
+      <link rel="stylesheet" href="/static/css/play.css">
       <title>pentamath - Play</title>
       <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     </head>
     <body>
     <div id="fade"></div>
+      <div id="lobby_options">
+        <div id="lobby_header">Lobby Options</div>
+        <div id="lobby_difficulty">
+          Difficulty: 
+          <select>
+            <option>easy</option>
+            <option>medium</option>
+            <option>hard</option>
+          </select>
+        </div>
+        <div id="lobby_playing">
+          Are you playing: 
+          <select>
+            <option>yes</option>
+            <option>no</option>
+          </select>
+        </div>
+        <div id="lobby_button">
+          <a href="#" id="create" class="myButton">Create Game</a>
+        </div>
+        </div>
+        <div id="logo">
+          <img style="height:auto; width:100%; " src="/static/images/MainTitle.png">
+        </div>
         <div>
           <a href="#" id="practice" class="myButton">Practice</a>
-          <a href="#" id="lobby" class="myButton">Lobby</a>
+          <a id="lobby" class="myButton">Lobby</a>
           <a href="#" id="versus" class="myButton">Versus</a>
         </div>
         <div id="background"></div>
@@ -28,7 +52,14 @@
         <script type="text/javascript">
           $('#lobby').on('click', function () {
             $('#fade').css('display', 'block');
+            $('#lobby_options').css('display', 'block');
           });
+        </script>
+        <script type="text/javascript">
+          $('#fade').on('click',function () {
+            $('#fade').css('display', 'none');
+            $('#lobby_options').css('display', 'none');
+          });  
         </script>
         <script>
           var GameConfig = {
@@ -38,5 +69,20 @@
           };
         </script>
         <script src="/static/js/game.js"></script>
+        <script type="text/javascript">
+          send.addEventListener('click', function () {
+                connection.send(message.value);
+                document.getElementById("message").value = "";
+            });
+          
+                document.querySelector('#textline').addEventListener('keypress', function(e){
+              var key = e.which || e.keyCode;
+              if(key === 13) {
+                connection.send(message.value);
+                document.getElementById("message").value = "";
+            }
+              
+            });
+        </script>
     </body>
 </html>
