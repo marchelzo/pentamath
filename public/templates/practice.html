@@ -46,6 +46,7 @@
         roundComplete();
         return;
       }
+      $('#answer').attr('placeholder', '');
       $('#question').html('$$' + problemList[i] + '$$');
       MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
       timeoutID = window.setTimeout(function () {
@@ -88,7 +89,8 @@
           correct: correct
         }
       });
-      $('#question').html('Complete: ' + correct + '/5 <br /> Play again?');
+      $('#question').html('Complete: ' + correct + '/5');
+      $('#answer').attr('placeholder', 'Enter to play again');
     }
     
 

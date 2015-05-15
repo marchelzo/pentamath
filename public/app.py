@@ -39,25 +39,27 @@ def signup():
     if request.method == 'GET':
         return render_template('signup.html', host=HOST)
 
+    username = request.form['username']
+
     # ensure validity of username and password
-    user_len = len(request.form['username'])
+    user_len = len(username)
     pass_len = len(request.form['password'])
     if user_len < 5 or user_len > 30:
         return error('Username must be between 5 and 30 characters')
     if pass_len < 5 or pass_len > 300: 
         return error('Password must be at least 5 characters')
-    if USERNAME_REGEX.match(request.form['username']) is None:
+    if USERNAME_REGEX.match(username) is None:
         return error('Username must not contain any special characters')
 
 
     # ensure username uniqueness
-    cursor.execute('SELECT 1 FROM users WHERE username = %s', (request.form['username'],))
+    cursor.execute('SELECT 1 FROM users WHERE username = %s', (username,))
     if cursor.rowcount > 0:
         return error('Username is already taken')
 
     # register user
     hash = generate_password_hash(request.form['password'])
-    cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s) RETURNING id', (request.form['username'], hash))
+    cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s) RETURNING id', (username, hash))
 
     user_id = int(cursor.fetchone()[0])
 
@@ -67,11 +69,24 @@ def signup():
     # commit changes to db
     db_connection.commit()
 
-    return success()
+    # log the user in for convenience
+    session['username'] = username
+
+    response = app.make_response(success())
+
+    uid = str(uuid.uuid4())
+    session['uid'] = uid
+    session['username'] = username
+    redis_connection.setex(uid, 12000, username)
+    response.set_cookie('pentamath-uid', uid)
+
+    return response
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
+        if 'username' in session:
+            return redirect(url_for('play'), code=302)
         return render_template('login.html')
     try:
         cursor.execute('SELECT username, password FROM users WHERE LOWER(username) = LOWER(%s)', (request.form['username'],))
@@ -85,8 +100,8 @@ def login():
         uid = str(uuid.uuid4())
         session['uid'] = uid
         session['username'] = row[0]
-        redis_connection.setex(uid, 1200, row[0])
-        response = app.make_response(success())
+        redis_connection.setex(uid, 12000, row[0])
+        response = app.make_response(redirect(url_for('play'), code=302))
         response.set_cookie('pentamath-uid', uid)
         return response
     
@@ -97,8 +112,9 @@ def login():
 
 @app.route('/logout')
 def logout():
-    # remove the username from the session if it's there
-    session.pop('username', None)
+    if 'uid' in session:
+        redis_connection.delete(session['uid'])
+    session.clear()
     return redirect(url_for('index'))
 
 @app.route('/play')
