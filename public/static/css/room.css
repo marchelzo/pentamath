@@ -55,6 +55,7 @@ html {
   width: 20vw;
   position: absolute;
   left: 40vw;
+  display: none;
 }
 
 #answer {

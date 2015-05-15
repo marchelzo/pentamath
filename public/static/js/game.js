@@ -138,7 +138,7 @@ message.on('keypress', function (e) {
 var answer = $('#answer');
 
 answer.on('keypress', function (e) {
-  if (e.which !== 13) return;
+  if (e.which !== 13 || answer.val() === '') return;
   handleAnswer(answer.val());
   answer.val('');
 });
