@@ -9,9 +9,29 @@
     </head>
     <body>
     <div id="fade"></div>
-        <div>
+      <div id="lobby_options">
+        <div id="lobby_header">Lobby Options</div>
+        <div id="lobby_difficulty">
+          Difficulty: 
+          <select>
+            <option>easy</option>
+            <option>medium</option>
+            <option>hard</option>
+          </select>
+        </div>
+        <div id="lobby_playing">
+          Are you playing: 
+          <select>
+            <option>yes</option>
+            <option>no</option>
+          </select>
+        </div>
+        <div id="lobby_button">
+          <a href="#" id="create" class="myButton">Create Game</a>
+        </div>
+      </div>
           <a href="#" id="practice" class="myButton">Practice</a>
-          <a href="#" id="lobby" class="myButton">Lobby</a>
+          <a id="lobby" class="myButton">Lobby</a>
           <a href="#" id="versus" class="myButton">Versus</a>
         </div>
         <div id="background"></div>
@@ -29,7 +49,14 @@
         <script type="text/javascript">
           $('#lobby').on('click', function () {
             $('#fade').css('display', 'block');
+            $('#lobby_options').css('display', 'block');
           });
+        </script>
+        <script type="text/javascript">
+          $('#fade').on('click',function () {
+            $('#fade').css('display', 'none');
+            $('#lobby_options').css('display', 'none');
+          });  
         </script>
         <script>
           var GameConfig = {

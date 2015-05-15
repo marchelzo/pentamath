@@ -28,9 +28,9 @@ html {
   background-color: #eee; 
   margin-left: auto;
   margin-right: auto;
-  width: 60%;
-  height: 80vh;
-  max-height: 30%;
+  width: 70%;
+  height: 10rem;
+  min-height: 10rem;
   border: 1px solid black;
 }
 
@@ -41,18 +41,26 @@ html {
 
 #message {
   text-align: left;
-  width: 80%;
-  
+  float: left;
+  width: calc(100% - 67px);
 }
 
 #seperator {
-  height: 8rem;
+  height: 8.6rem;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
+#send {
+  width: 60px;
+}
 
-#practice, #lobby, #versus {
+#messages {
+  text-align: left;
+}
+
+
+#practice, #lobby, #versus, #create,{
   display: inline-block;
   transition: 0.1s ease-in-out;
   height: 2rem;
@@ -65,8 +73,8 @@ html {
   font-size: 1.6rem;
   line-height: 2rem;
   text-align: center;
-  margin-left: 3%;
-  margin-right: 3%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .myButton {
@@ -112,11 +120,30 @@ html {
 }
 
 #fade {
-  position: absolute;
-  width: 100vw;
-  height: 100vh;
+  position: fixed;
+  width: 100%;
+  height: 100%;
   background: #222;
   z-index: 3;
   opacity: 0.9;
   display: none;
+}
+
+#lobby_options {
+  padding: 5px;
+  background-color: #eee;
+  z-index: 4;
+  top: 5vh;
+  position: relative;
+  width: 30rem;
+  margin: auto;
+  display: none;
+}
+
+#lobby_header {
+  border-bottom: 1px solid black;
+}
+
+#lobby_difficulty, #lobby_playing, #lobby_button {
+  margin-top: 5px;
 }
