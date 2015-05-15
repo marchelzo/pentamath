@@ -12,11 +12,9 @@ from os import getenv
 USERNAME_REGEX = re.compile('^[a-zA-Z0-9]+$')
 
 def error(s):
-    print('error ' + s)
     return '{"success": false, "error": "%s"}' % (s,), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 def success():
-    print('success')
     return '{"success": true}', 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 # retrieve necessary environment variables
@@ -73,12 +71,11 @@ def login():
     try:
         cursor.execute('SELECT username, password FROM users WHERE LOWER(username) = LOWER(%s)', (request.form['username'],))
         if cursor.rowcount != 1:
-            return error('ROW Invalid username or password')
+            return error('Invalid username or password')
         row = cursor.fetchone()
-        print(row)
         stored_hash = row[1].split()[0]
         if not check_password_hash(stored_hash, request.form['password']):
-            return error('PASS Invalid username or password')
+            return error('Invalid username or password')
 
         uid = str(uuid.uuid4())
         session['uid'] = uid
@@ -90,7 +87,7 @@ def login():
     
     except Exception:
         print(traceback.format_exc())
-        return error('ERR Invalid username or password')
+        return error('Invalid username or password')
         
 
 @app.route('/logout')
@@ -106,11 +103,25 @@ def play():
     else:  # not logged in
         return redirect(url_for('login'), code=302)
 
+@app.route('/practice')
+def practice():
+    if 'username' in session:
+        return render_template('practice.html', host=HOST)
+    else:
+        return redirect(url_for('login'), code=302)
+
+@app.route('/room/<user>')
+def room(user):
+    if 'username' in session:
+        return render_template('room.html', host=HOST, owner=user)
+    else:
+        return redirect(url_for('login'), code=302)
+
 @app.before_request
 def update_session():
     pass
     if 'username' in session:
-        redis_connection.expire(session['uid'], 1200)
+        redis_connection.expire(session['uid'], 12000)
 
 
 # set the secret key.  keep this really secret:
