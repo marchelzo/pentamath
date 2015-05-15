@@ -4,7 +4,7 @@
 import           Data.List (intersperse, sortBy)
 import           Data.Ord (comparing)
 import           Control.Exception
-import           Control.Monad (forM_, void, replicateM)
+import           Control.Monad (forM_, void, replicateM, when)
 import           Data.Monoid ((<>))
 import           Network.WebSockets
 import qualified Data.Text as T
@@ -73,6 +73,16 @@ handleConnection redis state pending = do
       TIO.putStrLn $ "Disconnecting: " <> username
       modifyMVar_ state $ \s -> return $ s { clients = filter ((/= username) . fst) (clients s) }
 
+dispatch :: MVar GameServer -> User -> Text -> IO ()
+dispatch state user@(username, connection) messageType =
+  case messageType of
+    "globalChatMessage" -> receiveData connection >>= broadcastGlobalChatMessage state user
+    "roomChatMessage"   -> doRoomMessage state user
+    "newRoom"           -> createNewRoom state user
+    "joinRoom"          -> joinRoom state user
+    "practiceProblems"  -> sendPracticeProblems user
+    _                   -> return ()
+
 newUser :: MVar GameServer -> User -> IO ()
 newUser state user@(username, connection) = do
   modifyMVar_ state $ \s -> return $ s { clients = user : (clients s) }
@@ -80,13 +90,7 @@ newUser state user@(username, connection) = do
 
   let loop = do
         messageType <- receiveData connection :: IO Text
-        case messageType of
-          "globalChatMessage" -> receiveData connection >>= broadcastGlobalChatMessage state user
-          "roomChatMessage"   -> doRoomMessage state user
-          "newRoom"           -> createNewRoom state user
-          "joinRoom"          -> joinRoom state user
-          "practiceProblems"  -> sendPracticeProblems user
-          _                   -> return ()
+        dispatch state user messageType
         loop
 
   loop
@@ -101,6 +105,7 @@ sendPracticeProblems (_, connection) = do
 
 doRoomMessage :: MVar GameServer -> User -> IO ()
 doRoomMessage state user@(username, connection) = do
+  putStrLn "room message"
   roomOwner <- receiveData connection :: IO Text
   room <- ((Map.! roomOwner) . rooms) <$> readMVar state
   message <- receiveData connection :: IO Text
@@ -117,7 +122,7 @@ joinRoom state user@(username, connection) = do
   rs <- rooms <$> readMVar state
   if Map.member roomOwner rs
   then modifyMVar_ state $ \s -> return $ s { rooms = addUser (rooms s) roomOwner }
-  else sendTextData connection (errorMessage "No such room!")
+  else sendTextData connection (errorMessage "noRoom")
 
   where
     addUser rooms owner = Map.adjust (\g -> g { competitors = user : competitors g, scoreboard = Map.insert username 0 (scoreboard g) }) owner rooms
@@ -130,8 +135,12 @@ createNewRoom state user@(username, connection) = do
   let room = GameRoom user ownerPlays competitors Map.empty []
   modifyMVar_ state $ \s -> return $ s { rooms = Map.insert username room (rooms s) }
 
-  -- | block until another message is received, and then begin the game
-  void $ (receiveData connection :: IO Text)
+  -- | continue dispatching chat messages, etc. but check for 'start'
+  let loop = do
+      msgType <- receiveData connection :: IO Text
+      when (msgType /= "start") $ dispatch state user msgType >> loop
+
+  loop
 
   startRoom state user
 
