@@ -47,7 +47,14 @@ function handleMessage(msg) {
   case 'error':
     switch (msg.message) {
     case 'noRoom':
-      window.location.href = '/';
+      //window.location.replace('/login');
+      break;
+    case 'noToken':
+      alert('no token');
+      //window.location.href = (GameConfig.host + ':5000/login');
+      break;
+    case 'serverError':
+      alert('The server is having problems. Please try again in a few minutes');
       break;
     }
   break;

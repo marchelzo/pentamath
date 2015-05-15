@@ -65,8 +65,8 @@ handleConnection redis state pending = do
 
   case usernameMatch of
     Right (Just bytes) -> let username = decodeUtf8 bytes in flip finally (disconnect username) (newUser state (username, connection))
-    Right Nothing         -> sendTextData connection ("Invalid user ID" :: Text)
-    Left  _               -> sendTextData connection ("Error processing request" :: Text)
+    Right Nothing         -> sendTextData connection $ errorMessage "noToken"
+    Left  _               -> sendTextData connection $ errorMessage "serverError"
 
   where
     disconnect username = do

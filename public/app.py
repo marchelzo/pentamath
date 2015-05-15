@@ -121,7 +121,7 @@ def room(user):
 def update_session():
     pass
     if 'username' in session:
-        redis_connection.expire(session['uid'], 12000)
+        redis_connection.expire(session['uid'], 120000)
 
 
 # set the secret key.  keep this really secret:
