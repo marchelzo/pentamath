@@ -78,7 +78,7 @@
           document.querySelector('#answerbox').addEventListener('keypress', function(e){
               var key = e.which || e.keyCode;
               if(key === 13) {
-                $("#time").TimeCircles(); 
+                $("#time").TimeCircles({ time: { Days: { show: false }, Hours: { show: false }, Minutes: { show: false }, Seconds: { text: "Seconds Left"} }}); 
                 connection.send(answerbox.value);
                 document.getElementById("answerbox").value = "";
             }

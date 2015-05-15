@@ -79,7 +79,7 @@
     };
     var secondsIn = {
         Seconds: 1,
-        Minutes: 15,
+        Minutes: 60,
         Hours: 3600,
         Days: 86400,
         Months: 2678400,
@@ -802,36 +802,36 @@
         ref_date: new Date(),
         start: true,
         animation: "smooth",
-        count_past_zero: false,
+        count_past_zero: true,
         circle_bg_color: "#60686F",
         use_background: true,
         fg_width: 0.1,
         bg_width: 1.2,
         text_size: 0.07,
-        total_duration: "auto",
+        total_duration: "Auto",
         direction: "Clockwise",
         use_top_frame: false,
         start_angle: 0,
         time: {
             Days: {
-                show: false,
+                show: true,
                 text: "Days",
                 color: "#FC6"
             },
             Hours: {
-                show: false,
+                show: true,
                 text: "Hours",
                 color: "#9CF"
             },
             Minutes: {
-                show: false,
+                show: true,
                 text: "Minutes",
                 color: "#BFB"
             },
             Seconds: {
                 show: true,
-                text: "Seconds Left",
-                color: "#4090e9"
+                text: "Seconds",
+                color: "#F99"
             }
         }
     };
