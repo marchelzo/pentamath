@@ -808,7 +808,7 @@
         fg_width: 0.1,
         bg_width: 1.2,
         text_size: 0.07,
-        total_duration: "15",
+        total_duration: "auto",
         direction: "Clockwise",
         use_top_frame: false,
         start_angle: 0,
