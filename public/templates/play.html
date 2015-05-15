@@ -84,7 +84,12 @@
             onOpen: function () {
               $('#create').on('click', function () {
                 var difficulty = $('#difficulty').find(':selected').text();
-                console.log(difficulty);
+                var playing = $('#playing').find(':selected').text();
+                $('<form action="/createroom" method="POST" />')
+                  .append($('<input type="hidden" name="playing" value="' + playing + '">'))
+                  .append($('<input type="hidden" name="difficulty" value="' + difficulty + '">'))
+                  .appendTo($(document.body))
+                  .submit();
               });
             }
           };

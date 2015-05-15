@@ -134,13 +134,13 @@ def practice():
 @app.route('/room/<user>')
 def room(user):
     if 'username' in session:
-        return render_template('room.html', host=HOST, owner=user)
+        return render_template('room.html', host=HOST, owner=user, own='false')
     else:
         return redirect(url_for('login'), code=302)
 
 @app.route('/submitscore', methods=['POST'])
 def submit_score():
-    if 'username' not in session: return
+    if 'username' not in session: return error('')
     username = session['username']
     cursor.execute('SELECT id FROM users WHERE username = %s', (username,))
     user_id = int(cursor.fetchone()[0])
@@ -149,6 +149,16 @@ def submit_score():
     db_connection.commit()
 
     return success()
+
+@app.route('/createroom', methods=['POST'])
+def create_room():
+    if 'username' not in session: return error('')
+    
+    if request.form['playing'] == 'true':
+        return render_template('room.html', own='true', difficulty=request.form['difficulty'])
+    else:
+        return render_template('spectate.html', difficulty=request.form['difficulty'])
+
 
 @app.before_request
 def update_session():
