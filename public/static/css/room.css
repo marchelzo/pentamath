@@ -33,12 +33,16 @@ html {
 }
 
 #lobby {
+  height: 1rem;
+  font-size: 1rem;
   width: 50vw;
   float: left;
   text-align: left;
 }
 
 #question_number {
+  height: 1rem;
+  font-size: 1rem;
   width: 50vw;
   float: right;
   text-align: right;
@@ -54,11 +58,14 @@ html {
   font-size: 4rem;
 }
 
-#time {
-  height: calc(20vw);
+#holder {
   width: 20vw;
+  height: calc(20vw);
   position: relative;
   left: 40vw;
+}
+
+#time {
   display: none;
 }
 
