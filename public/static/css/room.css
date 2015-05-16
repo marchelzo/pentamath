@@ -26,7 +26,6 @@ html {
 #face {
   width: 100vw;
   background-color: #eee;
-  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
   height: auto;
@@ -56,7 +55,7 @@ html {
 }
 
 #time {
-  height: auto;
+  height: calc(20vw);
   width: 20vw;
   position: relative;
   left: 40vw;
