@@ -43,6 +43,7 @@ function handleMessage(msg) {
     $('#question').html(msg.message);
     $('#time').TimeCircles().restart();
     $('#time').TimeCircles().start();
+    $('#time').css('display', 'block');
     MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
     break;
 
