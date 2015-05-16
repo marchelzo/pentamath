@@ -40,7 +40,7 @@ function handleMessage(msg) {
     break;
 
   case 'newQuestion':
-    $('#question').html(msg.message);
+    $('#question').html('$$' + msg.message + '$$');
     $('#time').TimeCircles().restart();
     $('#time').TimeCircles().start();
     $('#time').css('display', 'block');

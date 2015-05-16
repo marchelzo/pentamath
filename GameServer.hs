@@ -187,7 +187,7 @@ startRoom state owner = do
     putStrLn "GOT ANSWERS"
     mapM_ TIO.putStrLn (map (\(a,b,c) -> b) answers)
     let scoreboardRecipients = if ownerPlaying room then ps else (owner : ps)
-    updateScores q answers >>= broadcastScoreboard ps
+    updateScores q answers >>= broadcastScoreboard scoreboardRecipients
 
   where
     updateScores q answers = do

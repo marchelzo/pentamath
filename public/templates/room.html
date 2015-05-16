@@ -73,14 +73,13 @@
         <script>
 
           function handleAnswer(ans) {
-            console.log('SENDING ANSWER: ' + ans);
             connection.send(ans);
             $('#time').TimeCircles().stop();
           }
 
 
           $(function() {
-            $("#time").TimeCircles({count_past_zero: false, total_duration: 15, time: { Days: { show: false }, Hours: { show: false }, Minutes: { show: false }, Seconds: { text: "Seconds Left"} }}); 
+            $("#time").TimeCircles({count_past_zero: false, total_duration: 15, time: { Days: { show: false }, Hours: { show: false }, Minutes: { show: false }, Seconds: { text: " ", color: '#4090e9'} }}); 
             $('#time').TimeCircles().restart();
             $('#time').TimeCircles().stop();
             $('#time').TimeCircles().addListener(function (unit, value, total) {
