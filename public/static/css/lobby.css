@@ -1,0 +1,162 @@
+* {
+  padding: 0;
+  margin:  0;
+}
+
+#scoreboard {
+  width: 33.333vw;
+  height: 80vh;
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: #555;
+}
+
+#scoreboard ol li {
+  font-family: Georgia, serif;
+  width: 100%;
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  text-align: center;
+  height: 6vh;
+  line-height: 6vh;
+  font-size: 3.8vh;
+}
+
+#scoreboard ol li:nth-child(2n) {
+  background: #444;
+}
+
+#scoreboard ol li:nth-child(1) {
+  color: #E8C115;
+}
+
+#scoreboard ol li:nth-child(2) {
+  color: #D9D9D9;
+}
+
+#scoreboard ol li:nth-child(3) {
+  color: #754D15;
+}
+
+#lobby-name {
+  width: 33.333vw;
+  width: 100%;
+  height: 16vh;
+  font-family: Helvetica, sans-serif;
+  font-size: 6vh;
+  line-height: 16vh;
+  text-align: center;
+  background: #4090e9;
+  color: #fff;
+  text-shadow: 0 1px 0 #ccc,
+               0 2px 0 #c9c9c9,
+               0 3px 0 #bbb,
+               0 4px 0 #b9b9b9,
+               0 5px 0 #aaa,
+               0 6px 1px rgba(0,0,0,.1),
+               0 0 5px rgba(0,0,0,.1),
+               0 1px 3px rgba(0,0,0,.3),
+               0 3px 5px rgba(0,0,0,.2),
+               0 5px 10px rgba(0,0,0,.25),
+               0 10px 10px rgba(0,0,0,.2),
+               0 20px 20px rgba(0,0,0,.15);
+}
+
+#game {
+  width: 66.666vw;
+  height: 80vh;
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: #ddd;
+}
+
+#chat {
+  width: 100vw;
+  height: 20vh;
+  position: absolute;
+  bottom: 0;
+  background: green;
+}
+
+#progress {
+  height: 10vh;
+  width: 66.666vw;
+  background: #242424;
+}
+
+#time {
+  top: 1vh;
+  position: absolute;
+  height: 8vh;
+  width: 8vh;
+  left: calc(1*(66.666vw - 40vh) / 10); 
+}
+
+#question {
+  height: 60vh;
+  width: 66.666vw;
+  background: #ddd;
+  text-align: center;
+  line-height: 60vh;
+  font-size: 10vh;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.circle {
+  position: absolute;
+  top: 1vh;
+  height: 8vh;
+  width: 8vh;
+  border-radius: 50%;
+  background: #444;
+}
+
+#c0 { left: calc(1*(66.666vw - 40vh) / 10); }
+#c1 { left: calc(3*(66.666vw - 40vh) / 10 + 8vh); }
+#c2 { left: calc(5*(66.666vw - 40vh) / 10 + 16vh); }
+#c3 { left: calc(7*(66.666vw - 40vh) / 10 + 24vh); }
+#c4 { left: calc(9*(66.666vw - 40vh) / 10 + 32vh); }
+
+.right {
+  background-color: #30c740;
+}
+
+.wrong {
+  background-color: #c34040;
+}
+
+#answer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 66.666vw;
+  height: 10vh;
+  font-size: 8vh;
+  outline: none;
+  text-align: center;
+  line-height: 10vh;
+}
+
+#chat {
+  font-family: monospace;
+}
+
+#message-container {
+  width: 100vw;
+  height: 17vh;
+  background: #e3e3e3;
+  overflow: auto;
+}
+
+#message {
+  position: absolute;
+  bottom: 0;
+  height: 3vh;
+  width: 100vw;
+  outline: none;
+  font-size: 2.8vh;
+  line-height: 3vh;
+  font-family: monospace;
+}

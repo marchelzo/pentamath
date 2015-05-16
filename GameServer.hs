@@ -18,6 +18,8 @@ import           Control.Concurrent.Async
 import qualified Database.Redis as Redis
 import           System.Clock
 import           Problem
+import           Data.Set (Set)
+import qualified Data.Set as Set
 
 type User = (Text, Connection)
 
@@ -39,6 +41,7 @@ data GameServer = GameServer {
     rooms      :: Map Text GameRoom
   , matches    :: Map Text Match
   , clients    :: [User]
+  , connected  :: Set Text
 }
 
 -- | Time in seconds to answer a question
@@ -48,11 +51,14 @@ timeLimit = 10
 encodeMessage :: Text -> Text -> Text
 encodeMessage t msg = "{\"type\": \"" <> t <> "\", \"message\": \"" <> msg <> "\"}"
 
+encodeMessage' :: Text -> Text -> Text
+encodeMessage' t msg = "{\"type\": \"" <> t <> "\", \"message\": " <> msg <> "}"
+
 errorMessage :: Text -> Text
 errorMessage = encodeMessage "error"
 
 initialServerState :: GameServer
-initialServerState = GameServer Map.empty Map.empty []
+initialServerState = GameServer Map.empty Map.empty [] Set.empty
 
 handleConnection :: Redis.Connection -> MVar GameServer -> PendingConnection -> IO ()
 handleConnection redis state pending = do
@@ -71,6 +77,7 @@ handleConnection redis state pending = do
     disconnect username = do
       TIO.putStrLn $ "Disconnecting: " <> username
       modifyMVar_ state $ \s -> return $ s { clients = filter ((/= username) . fst) (clients s) }
+      modifyMVar_ state $ \s -> return $ s { connected = Set.delete username (connected s) }
 
 dispatch :: MVar GameServer -> User -> Text -> IO ()
 dispatch state user@(username, connection) messageType =
@@ -85,12 +92,14 @@ dispatch state user@(username, connection) messageType =
 newUser :: MVar GameServer -> User -> IO ()
 newUser state user@(username, connection) = do
   modifyMVar_ state $ \s -> return $ s { clients = user : (clients s) }
-  broadcastGlobalServerMessage state $ username <> " has joined"
+  alreadyHere <- (Set.member username . connected) <$> readMVar state
+  when (not alreadyHere) $ broadcastGlobalServerMessage state $ username <> " has joined"
+  modifyMVar_ state $ \s -> return $ s { connected = Set.insert username (connected s) }
 
   let loop = do
         messageType <- receiveData connection :: IO Text
         dispatch state user messageType
-        loop
+        when (messageType /= "stopLoop") loop
 
   loop
 
@@ -104,7 +113,6 @@ sendPracticeProblems (_, connection) = do
 
 doRoomMessage :: MVar GameServer -> User -> IO ()
 doRoomMessage state user@(username, connection) = do
-  putStrLn "room message"
   roomOwner <- receiveData connection :: IO Text
   room <- ((Map.! roomOwner) . rooms) <$> readMVar state
   message <- receiveData connection :: IO Text
@@ -118,17 +126,18 @@ doRoomMessage state user@(username, connection) = do
 joinRoom :: MVar GameServer -> User -> IO ()
 joinRoom state user@(username, connection) = do
   roomOwner <- receiveData connection :: IO Text
+  TIO.putStrLn $ "Request to join: " <> roomOwner
   rs <- rooms <$> readMVar state
   if Map.member roomOwner rs
   then do
     others <- (competitors . (Map.! roomOwner) . rooms) <$> readMVar state
     forM_ (map snd others) $ \c -> sendTextData c $ encodeMessage "userJoinedRoom" username
     let message = "[" <> mconcat (intersperse "," (map ((\t -> "\"" <> t <> "\"") . fst) others)) <> "]"
-    sendTextData connection $ encodeMessage "userList" message
+    sendTextData connection $ encodeMessage' "userList" message
     modifyMVar_ state $ \s -> return $ s { rooms = addUser (rooms s) roomOwner }
   else sendTextData connection (errorMessage "noRoom")
 
-  threadDelay 1000000000000
+  threadDelay 10000000000
 
   where
     addUser rooms owner = Map.adjust (\g -> g { competitors = user : competitors g, scoreboard = Map.insert username 0 (scoreboard g) }) owner rooms
@@ -137,6 +146,10 @@ joinRoom state user@(username, connection) = do
 -- | does not currently check for already existing rooms by this user
 createNewRoom state user@(username, connection) = do
   ownerPlays <- (== ("true" :: Text)) <$> receiveData connection
+  difficulty <- (receiveData connection :: IO Text) >>= \d -> return $ case d of
+    "easy" -> VeryEasy
+    "medium" -> Hard
+    "hard" -> Insane
   let competitors = if ownerPlays then [user] else []
   let scoreboard = if ownerPlays then Map.singleton username 0 else Map.empty
   let room = GameRoom user ownerPlays competitors scoreboard []
@@ -153,7 +166,7 @@ createNewRoom state user@(username, connection) = do
 
   loop
 
-  startRoom state user
+  startRoom difficulty state user
 
 broadcastGlobalChatMessage :: MVar GameServer -> User -> Text -> IO ()
 broadcastGlobalChatMessage state from message = do
@@ -167,24 +180,26 @@ broadcastGlobalServerMessage state message = do
   forM_ users $ \c -> do
     sendTextData c $ "{\"type\": \"globalServerMessage\", \"message\": \"" <> message <> "\"}"
 
-startRoom :: MVar GameServer -> User -> IO ()
-startRoom state owner = do
+startRoom :: Difficulty -> MVar GameServer -> User -> IO ()
+startRoom difficulty state owner = do
   room <- ((Map.! (fst owner)) . rooms) <$> readMVar state
   let ps = competitors room
 
-  questions <- replicateM 5 (randomProblem VeryEasy)
+  questions <- replicateM 5 (randomProblem difficulty)
 
-  putStrLn "ABOUT TO START"
+  -- | putStrLn "ABOUT TO START"
 
-  putStrLn "PLAYERS:"
-  mapM_ TIO.putStrLn (map fst ps)
+  -- | putStrLn "PLAYERS:"
+  -- | mapM_ TIO.putStrLn (map fst ps)
 
   forM_ questions $ \q -> do
     broadcastQuestion ps q
-    putStrLn "SENT QUESTION"
+    -- | putStrLn "SENT QUESTION"
     answers <- mapConcurrently getAnswer ps
-    putStrLn "GOT ANSWERS"
-    mapM_ TIO.putStrLn (map (\(a,b,c) -> b) answers)
+
+    forM_ (map snd ps) $ \c -> sendTextData c $ encodeMessage "answer" (answer q)
+    -- | putStrLn "GOT ANSWERS"
+    -- | mapM_ TIO.putStrLn (map (\(a,b,c) -> b) answers)
     let scoreboardRecipients = if ownerPlaying room then ps else (owner : ps)
     updateScores q answers >>= broadcastScoreboard scoreboardRecipients
 
@@ -204,7 +219,7 @@ startRoom state owner = do
           | ans == answer q = (+1)
           | otherwise       = id
 
-    broadcastScoreboard ps board = forM_ ps $ \p -> sendTextData (snd p) (encodeMessage "scoreboardUpdate" (encodeScoreboard board))
+    broadcastScoreboard ps board = forM_ ps $ \p -> sendTextData (snd p) (encodeMessage' "scoreboardUpdate" (encodeScoreboard board))
     broadcastQuestion ps q = forM_ ps $ \p -> sendTextData (snd p) $ encodeMessage "newQuestion" (string q)
     encodeScoreboard board = "{" <> mconcat (intersperse "," ["\"" <> username <> "\": \"" <> (T.pack . show) score <> "\"" | (username, score) <- (sortBy (comparing snd) (Map.toList board))]) <> "}"
       

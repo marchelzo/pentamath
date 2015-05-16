@@ -54,6 +54,15 @@ html, body {
   text-align: center;
 }
 
+#time {
+  width: 10vw;
+  height: 10vw;
+  font-size: 2rem;
+  position: absolute;
+  top: 1vw;
+  left: 5vw;
+}
+
 .right {
   background-color: #30c740;
 }

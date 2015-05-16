@@ -13,8 +13,8 @@ function handleMessage(msg) {
         text: '[Global] ' + msg.from + ': ' + msg.message
       }
     ));
-    if ($('#seperator')[0])
-      $('#seperator')[0].scrollTop = $('#seperator')[0].scrollHeight;
+    //if ($('#message-container')[0])
+      //$('#message-container')[0].scrollTop = $('#message-container')[0].scrollHeight;
     break;
 
   case 'roomChatMessage':
@@ -24,8 +24,8 @@ function handleMessage(msg) {
         text: '[Room]   ' + msg.from + ': ' + msg.message
       }
     ));
-    if ($('#seperator')[0])
-      $('#seperator')[0].scrollTop = $('#seperator')[0].scrollHeight;
+    //if ($('#message-container')[0])
+      //$('#message-container')[0].scrollTop = $('#message-container')[0].scrollHeight;
     break;
 
   case 'globalServerMessage':
@@ -35,16 +35,32 @@ function handleMessage(msg) {
         text: '[Server] ' + msg.message
       }
     ));
-    if ($('#seperator')[0])
-      $('#seperator')[0].scrollTop = $('#seperator')[0].scrollHeight;
+    //if ($('#message-container')[0])
+      //$('#message-container')[0].scrollTop = $('#message-container')[0].scrollHeight;
     break;
 
   case 'newQuestion':
-    $('#question').html('$$' + msg.message + '$$');
+
+    questionNumber += 1;
+
+    if (!roomStarted) {
+      roomStarted = true;
+      $('#time').css('display', 'block');
+    }
+
+    $('#question').html(msg.message);
+
+    var offset = $('#c' + (questionNumber - 1)).position().left;
+    $('#time').animate({
+      left: offset
+    });
+
     $('#time').TimeCircles().restart();
     $('#time').TimeCircles().start();
     $('#time').css('display', 'block');
-    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+
+    $('#answer').focus();
+
     break;
 
   case 'practiceProblems':
@@ -63,6 +79,18 @@ function handleMessage(msg) {
     $('#messages').append(
       '<li>[Room]   ' + msg.message + ' has joined the room!</li>'
     );
+    addToScoreboard(msg.message, 0);
+    break;
+
+  case 'userList':
+    var users = msg.message;
+    for (var k = 0; k < users.length; ++k) {
+      addToScoreboard(users[k], 0);
+    }
+    break;
+
+  case 'answer':
+    checkAnswer(msg.message);
     break;
 
   case 'error':
@@ -80,6 +108,16 @@ function handleMessage(msg) {
     }
   break;
 
+
+  case 'scoreboardUpdate':
+    var scores = msg.message;
+    for (var player in scores) {
+      if (scores.hasOwnProperty(player)) {
+        addToScoreboard(player, scores[player]);
+      }
+    }
+    break;
+
   }
 }
 
@@ -90,10 +128,15 @@ function getCookie(name) {
 }
 
 var connection = new WebSocket('ws://' + GameConfig.host + ':' + GameConfig.port);
+var connection2 = new WebSocket('ws://' + GameConfig.host + ':' + GameConfig.port);
 
 connection.onopen = function () {
   connection.send(getCookie('pentamath-uid'));
   if (GameConfig.onOpen) GameConfig.onOpen();
+}
+
+connection2.onopen = function () {
+  connection2.send(getCookie('pentamath-uid'));
 }
 
 connection.onmessage = function (msg) {
@@ -121,15 +164,15 @@ message.on('keypress', function (e) {
   var escapedMessage = message.val().replace(/"/g, "\\\"");
 
   if (e.shiftKey) { // global
-    connection.send('globalChatMessage');
-    connection.send(escapedMessage);
+    connection2.send('globalChatMessage');
+    connection2.send(escapedMessage);
   } else if (GameConfig.inRoom) {
-    connection.send('roomChatMessage');
-    connection.send(GameConfig.roomOwner);
-    connection.send(escapedMessage);
+    connection2.send('roomChatMessage');
+    connection2.send(GameConfig.roomOwner);
+    connection2.send(escapedMessage);
   } else {
-    connection.send('globalChatMessage');
-    connection.send(escapedMessage);
+    connection2.send('globalChatMessage');
+    connection2.send(escapedMessage);
   }
 
   // clear message box
@@ -139,7 +182,6 @@ message.on('keypress', function (e) {
 var answer = $('#answer');
 
 answer.on('keypress', function (e) {
-  if (e.which !== 13 || answer.val() === '') return;
+  if (e.which !== 13) return;
   handleAnswer(answer.val());
-  answer.val('');
 });

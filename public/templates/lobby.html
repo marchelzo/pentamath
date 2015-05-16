@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel="stylesheet" href="/static/css/lobby.css">
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script type="text/javascript" src="/static/js/TimeCircles.js"></script>
+  <link rel="stylesheet" href="/static/css/TimeCircles.css">
+</head>
+<body>
+  <div id="scoreboard">
+    <div id="lobby-name"></div>
+    <ol>
+    </ol>
+  </div>
+  <div id="game">
+    <div id="progress">
+      <div id="c0" class="circle"></div>
+      <div id="c1" class="circle"></div>
+      <div id="c2" class="circle"></div>
+      <div id="c3" class="circle"></div>
+      <div id="c4" class="circle"></div>
+    </div>
+    <div id="time" data-timer="15"></div>
+    <div id="question">
+    </div>
+    <input id="answer" type="text">
+  </div>
+  <div id="chat">
+    <div id="message-container">
+      <ul id="messages">
+      </ul>
+    </div>
+    <input type="text" id="message">
+  </div>
+
+  <script>
+    var roomStarted = false;
+    var GameConfig = {
+      port: 8000,
+      host: '{{ host }}',
+      own: {{ own }},
+      roomOwner: '{{ owner }}',
+      inRoom: true,
+      difficulty: '{{ difficulty }}',
+      username: '{{ username }}',
+      onOpen: function () {
+        $('#lobby-name').html(GameConfig.roomOwner + '\'s Lobby');
+        if (GameConfig.own) {
+          connection.send('newRoom');
+          connection.send('true');
+          connection.send(GameConfig.difficulty);
+        } else {
+          connection.send('joinRoom');
+          connection.send(GameConfig.roomOwner);
+        }
+
+        $("#time").TimeCircles({
+          count_past_zero: false,
+          total_duration: 15,
+          time: {
+            Days: { show: false },
+            Hours: { show: false },
+            Minutes: { show: false },
+            Seconds: {
+              text: "",
+              color: '#4090e9'
+            }
+          }
+        }); 
+
+        $('#time').TimeCircles().addListener(function (unit, value, total) {
+          if (total == 0) {
+            connection.send('OUT OF TIME');
+            recentAns = '';
+            $('#answer').val('');
+
+            if (questionNumber === 5) {
+              endOfGame();
+            }
+          }
+        });
+
+        $('#time').css('display', 'none');
+
+        renderScoreboard();
+
+      },
+
+      onSend: function (msg) {
+        if (GameConfig.own && msg === '/start') {
+          connection.send('start');
+          $('#message').val('');
+        }
+      }
+    };
+  </script>
+
+  <script>
+    var questionNumber = 0;
+    var recentAnswer;
+    var scoreboard = [{player: GameConfig.username, score: 0}];
+
+    function addToScoreboard(player, score) {
+      for (var k = 0; k < scoreboard.length; ++k) {
+        if (scoreboard[k].player === player) {
+          scoreboard[k].score = score;
+          renderScoreboard();
+          return;
+        }
+      }
+
+      // they were not already there
+      scoreboard.push({player: player, score: score});
+      renderScoreboard();
+    }
+
+    function renderScoreboard() {
+      scoreboard.sort(function (a,b) { return b.score - a.score; });
+      var list = $('#scoreboard ol');
+      list.empty();
+      for (var k = 0; k < scoreboard.length; ++k) {
+        list.append($('<li>' + scoreboard[k].player + ' - ' + scoreboard[k].score + '</li>'));
+      }
+    }
+
+    function endOfGame() {
+      $('#scoreboard').animate({
+        width: '100vw'
+      });
+      $('#game').animate({
+        width: '0'
+      });
+    }
+
+    function handleAnswer(ans) {
+      if ($('#answer').val() === '') return;
+      connection.send(ans);
+      recentAnswer = ans;
+      $('#answer').val('');
+
+      if (questionNumber === 5) {
+        endOfGame();
+      }
+    }
+
+  function checkAnswer(ans) {
+    if (ans == recentAnswer)
+      $('#c' + (questionNumber - 1)).addClass('right');
+    else
+      $('#c' + (questionNumber - 1)).addClass('wrong');
+  }
+
+  </script>
+
+
+  <script src="/static/js/game.js"></script>
+</body>
+</html>

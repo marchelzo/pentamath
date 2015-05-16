@@ -134,7 +134,7 @@ def practice():
 @app.route('/room/<user>')
 def room(user):
     if 'username' in session:
-        return render_template('room.html', host=HOST, owner=user, own='false')
+        return render_template('lobby.html', host=HOST, owner=user, own='false', username=session['username'])
     else:
         return redirect(url_for('login'), code=302)
 
@@ -157,10 +157,13 @@ def create_room():
     print(request.form['playing'])
     
     if request.form['playing'] == 'yes':
-        return render_template('room.html', own='true', difficulty=request.form['difficulty'], owner=session['username'], host=HOST)
+        return render_template('lobby.html', own='true', difficulty=request.form['difficulty'], owner=session['username'], host=HOST, username=session['username'])
     else:
         return render_template('spectate.html', difficulty=request.form['difficulty'], host=HOST, own='false')
 
+@app.route('/lobby')
+def lobby():
+    return render_template('lobby.html')
 
 @app.before_request
 def update_session():
