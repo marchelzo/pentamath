@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel="stylesheet" href="/static/css/challenge.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+</head>
+<body>
+  <div id="time">0.00s</div>
+  <div id="you">
+    <div id="your-question">9 + 4</div>
+    <input type="text" id="answer"></div>
+  </div>
+  <div id="your-score"></div>
+  <div id="their-score"></div>
+  <div id="your-meter"></div>
+  <div id="their-meter"></div>
+  <div id="them-cover"></div>
+  <div id="them">
+    <div id="their-question">4 + 4</div>
+  </div>
+  <div id="chat">
+    <div id="message-container">
+      <ul id="messages"></ul>
+    </div>
+    <input id="message" type="text" />
+  </div>
+
+  <script>
+    var GameConfig = {
+      port: 8000,
+      username: '{{ username }}',
+      opponent: '{{ opponent }}',
+      host: '{{ host }}',
+      inRoom: false,
+      onOpen: function () {
+        connection.send('acceptChallenge');
+        connection.send(GameConfig.opponent);
+      }
+    };
+  </script>
+
+
+  <script src="/static/js/game.js"></script>
+
+
+  <script>
+    var begin;
+    var challengeStarted = false;
+    var score = 0;
+    var opponentScore = 0;
+    var timerTimeoutID;
+
+    function updateTimer() {
+      var now = +new Date();
+      var elapsed = (now - begin) / 1000;
+      $('#time').text(elapsed.toFixed(2) + 's');
+    }
+
+    function handleAnswer(ans) {
+      connection.send(ans);
+      $('#answer').val('');
+    }
+
+    function renderScores() {
+      var yourMeter = '' + Math.round(70.0 * score / 20.0) + 'vh';
+      var theirMeter = '' + Math.round(70.0 * opponentScore / 20.0) + 'vh';
+      $('#your-meter').animate({height: yourMeter});
+      $('#their-meter').animate({height: theirMeter});
+    }
+  </script>
+</body>
+</html>

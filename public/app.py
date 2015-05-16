@@ -163,7 +163,11 @@ def create_room():
 
 @app.route('/lobby')
 def lobby():
-    return render_template('lobby.html')
+    return render_template('challenge.html')
+
+@app.route('/challenge/<opponent>')
+def challenge(opponent):
+    return render_template('challenge.html', host=HOST, opponent=opponent, username=session['username'])
 
 @app.before_request
 def update_session():

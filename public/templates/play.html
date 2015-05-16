@@ -78,6 +78,14 @@
                   .appendTo($(document.body))
                   .submit();
               });
+            },
+            onSend: function (msg) {
+              var opponent = msg.match(/\/challenge (.*)$/);
+              if (opponent) {
+                connection.send('initiateChallenge');
+                connection.send(opponent[1]);
+              }
+              $('#message').val('');
             }
           };
         </script>

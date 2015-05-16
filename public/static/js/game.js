@@ -82,6 +82,36 @@ function handleMessage(msg) {
     addToScoreboard(msg.message, 0);
     break;
 
+  case 'challengeBeginning':
+    $('#messages').append(
+      '<li>[Challenge] The 1v1 is beginning in 3 seconds!</li>'
+    );
+    break;
+
+  case 'opponentQuestion':
+    $('#their-question').html(msg.message);
+    break;
+
+  case 'newChallengeQuestion':
+    $('#your-question').html(msg.message);
+    if (challengeStarted === false) {
+      challengeStarted = true;
+      begin = +new Date();
+      timerTimeoutID = window.setInterval(updateTimer, 50);
+    }
+    break;
+
+  case 'opponentScore':
+    opponentScore += 1;
+    renderScores();
+    break;
+
+  case 'youScore':
+    score += 1;
+    renderScores();
+    break;
+
+
   case 'userList':
     var users = msg.message;
     for (var k = 0; k < users.length; ++k) {
@@ -93,6 +123,18 @@ function handleMessage(msg) {
     checkAnswer(msg.message);
     break;
 
+  case 'challengeRequest':
+    $('#messages').append(
+      '<li>[Server] <a href="/challenge/' + msg.message + '">' + msg.message + ' has challenged you to a 1v1!</a></li>'
+    );
+  break;
+
+  case 'challengeAccepted':
+    $('#messages').append(
+      '<li>[Server] <a href="/challenge/' + msg.message + '">' + msg.message + ' has accepted your challenge!</a></li>'
+    );
+  break;
+
   case 'error':
     switch (msg.message) {
     case 'noRoom':
@@ -101,6 +143,11 @@ function handleMessage(msg) {
     case 'noToken':
       alert('no token');
       window.location.replace('/login');
+      break;
+    case 'noOpponent':
+      $('#messages').append(
+        '<li>[Server] That player is not currently online.</li>'
+      );
       break;
     case 'serverError':
       alert('The server is having problems. Please try again in a few minutes');
@@ -140,6 +187,18 @@ connection2.onopen = function () {
 }
 
 connection.onmessage = function (msg) {
+  console.log(msg.data);
+  try {
+    handleMessage(JSON.parse(msg.data));
+  } catch (e) {
+    // Invalid JSON
+    console.log(e.stack);
+    console.log('Invalid: ' + msg.data);
+  }
+  if (GameConfig.onMessage) GameConfig.onMessage(msg.data);
+};
+
+connection2.onmessage = function (msg) {
   console.log(msg.data);
   try {
     handleMessage(JSON.parse(msg.data));

@@ -23,12 +23,6 @@ import qualified Data.Set as Set
 
 type User = (Text, Connection)
 
-data Match = Match {
-    players  :: (User, User)
-  , score    :: (Int, Int)
-  , problems :: [Text]
-}
-
 data GameRoom = GameRoom {
     owner        :: User
   , ownerPlaying :: Bool
@@ -39,9 +33,9 @@ data GameRoom = GameRoom {
 
 data GameServer = GameServer {
     rooms      :: Map Text GameRoom
-  , matches    :: Map Text Match
   , clients    :: [User]
   , connected  :: Set Text
+  , challenges :: Map Text Text
 }
 
 -- | Time in seconds to answer a question
@@ -58,7 +52,7 @@ errorMessage :: Text -> Text
 errorMessage = encodeMessage "error"
 
 initialServerState :: GameServer
-initialServerState = GameServer Map.empty Map.empty [] Set.empty
+initialServerState = GameServer Map.empty [] Set.empty Map.empty
 
 handleConnection :: Redis.Connection -> MVar GameServer -> PendingConnection -> IO ()
 handleConnection redis state pending = do
@@ -87,7 +81,79 @@ dispatch state user@(username, connection) messageType =
     "newRoom"           -> createNewRoom state user
     "joinRoom"          -> joinRoom state user
     "practiceProblems"  -> sendPracticeProblems user
+    "initiateChallenge" -> initiateChallenge state user
+    "acceptChallenge"   -> acceptChallenge state user
     _                   -> return ()
+
+initiateChallenge state user@(username, connection) = do
+  opponent <- receiveData connection
+  oppConnection <- (lookup opponent . clients) <$> readMVar state
+  TIO.putStrLn $ "SEARCHED FOR OPPONENT " <> opponent
+  case oppConnection of
+    Nothing -> sendTextData connection $ errorMessage "noOpponent"
+    Just c  -> sendTextData c $ encodeMessage "challengeRequest" username
+
+acceptChallenge state user@(username, connection) = do
+  opponent <- receiveData connection
+  oppConnection <- (lookup opponent . clients) <$> readMVar state
+  case oppConnection of
+    Nothing -> return ()
+    Just c -> do
+      makeChallengeEntry username opponent
+      ready <- challengeReady username opponent
+      if ready
+      then doChallenge (opponent, c) user
+      else notifyAcceptance c username
+  where
+    makeChallengeEntry u o = modifyMVar_ state $ \s -> return $ s { challenges = Map.insert u o (challenges s) }
+    challengeReady u o = do
+      cs <- challenges <$> readMVar state
+      return $ Map.lookup u cs == Just o && Map.lookup o cs == Just u
+    notifyAcceptance c u = sendTextData c $ encodeMessage "challengeAccepted" u
+        
+doChallenge :: User -> User -> IO ()
+doChallenge u1@(name1, c1) u2@(name2, c2) = do
+  sendTextData c1 $ encodeMessage "challengeBeginning" ""
+  sendTextData c2 $ encodeMessage "challengeBeginning" ""
+  threadDelay $ 3 * 1000000
+  u1Status <- async (receiveData c1) :: IO (Async Text)
+  u2Status <- async (receiveData c2) :: IO (Async Text)
+  question1 <- randomProblem Medium
+  question2 <- randomProblem Medium
+  let loop u1s u2s score1 score2 q1 q2 = do
+      if score1 == 20 || score2 == 20
+      then do
+        if score1 == 20
+        then winnerLoser u1 u2
+        else winnerLoser u2 u1
+      else do
+        sendTextData c1 $ encodeMessage "newChallengeQuestion" (string q1)
+        sendTextData c2 $ encodeMessage "newChallengeQuestion" (string q2)
+        sendTextData c1 $ encodeMessage "opponentQuestion" (string q2)
+        sendTextData c2 $ encodeMessage "opponentQuestion" (string q1)
+        response <- waitEither u1s u2s
+        case response of
+          Left ans -> do
+            let bonus = if ans == (answer q1) then 1 else 0 :: Int
+            when (bonus == 1) $ sendTextData c2 $ encodeMessage "opponentScore" ""
+            when (bonus == 1) $ sendTextData c1 $ encodeMessage "youScore" ""
+            newU1s <- async $ receiveData c1
+            newQ1 <- randomProblem Medium
+            loop newU1s u2s (score1 + bonus) score2 newQ1 q2
+          Right ans -> do
+            let bonus = if ans == (answer q2) then 1 else 0 :: Int
+            when (bonus == 1) $ sendTextData c1 $ encodeMessage "opponentScore" ""
+            when (bonus == 1) $ sendTextData c2 $ encodeMessage "youScore" ""
+            newU2s <- async $ receiveData c2
+            newQ2 <- randomProblem Medium
+            loop u1s newU2s score1 (score2 + bonus) q1 newQ2
+
+  loop u1Status u2Status 0 0 question1 question2
+
+  where
+    winnerLoser win lose = do
+      sendTextData (snd win) $ encodeMessage "challengeComplete" "win"
+      sendTextData (snd lose) $ encodeMessage "challengeComplete" "lose"
 
 newUser :: MVar GameServer -> User -> IO ()
 newUser state user@(username, connection) = do

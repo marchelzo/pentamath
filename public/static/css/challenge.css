@@ -1,0 +1,143 @@
+#time {
+  width: 100vw;
+  height: 10vh;
+  background: #4090e9;
+  position: absolute;
+  top: 0;
+  left: 0;
+  text-align: center;
+  font-family: monospace;
+  font-size: 8vh;
+  line-height: 10vh;
+  color: #e4e4e4;
+  text-shadow: 0 1px 0 #ccc,
+               0 2px 0 #c9c9c9,
+               0 3px 0 #bbb,
+               0 4px 0 #b9b9b9,
+               0 5px 0 #aaa,
+               0 6px 1px rgba(0,0,0,.1),
+               0 0 5px rgba(0,0,0,.1),
+               0 1px 3px rgba(0,0,0,.3),
+               0 3px 5px rgba(0,0,0,.2),
+               0 5px 10px rgba(0,0,0,.25),
+               0 10px 10px rgba(0,0,0,.2),
+               0 20px 20px rgba(0,0,0,.15);
+}
+
+#you {
+  height: 70vh;
+  width: 40vw;
+  position: absolute;
+  top: 10vh;
+  left: 0;
+  background: #c3c3c3;
+}
+
+#them {
+  height: 70vh;
+  width: 40vw;
+  position: absolute;
+  top: 10vh;
+  right: 0;
+  background: #c3c3c3;
+}
+
+#your-score {
+  position: absolute;
+  top: 10vh;
+  height: 70vh;
+  width: 10vw;
+  left: 40vw;
+  background: #333;
+}
+
+#your-meter {
+  position: absolute;
+  bottom: 20vh;
+  height: 0vh;
+  width: 10vw;
+  left: 40vw;
+  background: #4090e9;
+}
+
+#their-meter {
+  position: absolute;
+  bottom: 20vh;
+  height: 0vh;
+  width: 10vw;
+  right: 40vw;
+  background: #4090e9;
+}
+
+#their-score {
+  position: absolute;
+  top: 10vh;
+  height: 70vh;
+  width: 10vw;
+  right: 40vw;
+  background: #333;
+}
+
+#them-cover {
+  position: absolute;
+  height: 70vh;
+  width: 40vw;
+  top: 10vh;
+  right: 0;
+  z-index: 3;
+  background: #000;
+  opacity: 0.8;
+}
+
+#answer {
+  width: 40vw;
+  height: 8vh;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-size: 6vh;
+  line-height: 8vh;
+  text-align: center;
+}
+
+#chat {
+  position: absolute;
+  width: 100vw;
+  height: 20vh;
+  bottom: 0;
+  left: 0;
+  background: #e3e3e3;
+  font-family: monospace;
+}
+
+#message-container {
+  width: 100vw;
+  height: 17vh;
+  background: #e3e3e3;
+  overflow: auto;
+}
+
+#messages {
+  list-style-type: none;
+}
+
+#messages li {
+  margin-left: 0;
+}
+
+#message {
+  position: absolute;
+  bottom: 0;
+  height: 3vh;
+  width: 100vw;
+  outline: none;
+  font-size: 2.8vh;
+  line-height: 3vh;
+  font-family: monospace;
+}
+
+#your-question, #their-question {
+  text-align: center;
+  line-height: 70vh;
+  font-size: 10vh;
+}
