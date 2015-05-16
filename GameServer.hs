@@ -14,7 +14,6 @@ import qualified Data.Text.IO as TIO
 import qualified Data.Map.Strict as Map
 import           Data.Map.Strict (Map(..))
 import           Control.Concurrent
-import           Control.Concurrent.Timeout
 import           Control.Concurrent.Async
 import qualified Database.Redis as Redis
 import           System.Clock
