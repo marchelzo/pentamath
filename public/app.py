@@ -153,11 +153,13 @@ def submit_score():
 @app.route('/createroom', methods=['POST'])
 def create_room():
     if 'username' not in session: return error('')
+
+    print(request.form['playing'])
     
     if request.form['playing'] == 'yes':
         return render_template('room.html', own='true', difficulty=request.form['difficulty'], owner=session['username'], host=HOST)
     else:
-        return render_template('spectate.html', difficulty=request.form['difficulty'], host=HOST)
+        return render_template('spectate.html', difficulty=request.form['difficulty'], host=HOST, own='false')
 
 
 @app.before_request
