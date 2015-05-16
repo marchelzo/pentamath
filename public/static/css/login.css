@@ -33,6 +33,7 @@ html {
 
 #logo {
   height: calc(50vw *.3);
+  background-color: #eee;
   width: 100vwmin;
   margin-left: auto;
   margin-right: auto;
@@ -40,7 +41,7 @@ html {
 
 #picture {
   background-color: #eee;
-  height: 100vhmin;
+  height: calc(50vw *.3);
   width: 100vwmin;
 }
 
