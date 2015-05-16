@@ -75,7 +75,7 @@ handleConnection redis state pending = do
 
   where
     disconnect username = do
-      TIO.putStrLn $ "Disconnecting: " <> username
+      -- | TIO.putStrLn $ "Disconnecting: " <> username
       modifyMVar_ state $ \s -> return $ s { clients = filter ((/= username) . fst) (clients s) }
       modifyMVar_ state $ \s -> return $ s { connected = Set.delete username (connected s) }
 
@@ -126,7 +126,7 @@ doRoomMessage state user@(username, connection) = do
 joinRoom :: MVar GameServer -> User -> IO ()
 joinRoom state user@(username, connection) = do
   roomOwner <- receiveData connection :: IO Text
-  TIO.putStrLn $ "Request to join: " <> roomOwner
+  -- | TIO.putStrLn $ "Request to join: " <> roomOwner
   rs <- rooms <$> readMVar state
   if Map.member roomOwner rs
   then do
@@ -225,10 +225,10 @@ startRoom difficulty state owner = do
       
 getAnswer :: User -> IO (Text, Text, Int)
 getAnswer (username, connection) = do
-  TIO.putStrLn $ "Getting answer from: " <> username
+  -- | TIO.putStrLn $ "Getting answer from: " <> username
   start  <- getTime Monotonic
   answer <- receiveData connection
-  TIO.putStrLn $ "Got answer from: " <> username <> " ---- " <> answer
+  -- | TIO.putStrLn $ "Got answer from: " <> username <> " ---- " <> answer
   end <- getTime Monotonic
   let elapsed = fromIntegral $ sec end - sec start
   return (username, answer, elapsed)

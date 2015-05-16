@@ -68,7 +68,7 @@ multiplication :: Difficulty -> IO Problem
 multiplication d = do
   a <- randomInt (low, high)
   b <- randomInt (low, high)
-  return $ Problem d ((pack . show) (a * b)) ((pack . show) a <> " \\\\times " <> (pack . show) b) Multiplication
+  return $ Problem d ((pack . show) (a * b)) ((pack . show) a <> " × " <> (pack . show) b) Multiplication
   where
     (low, high) = case d of
       VeryEasy -> (2,  5)
@@ -83,7 +83,7 @@ division d = do
   a <- randomInt (low, high)
   b <- randomInt (low, high)
   if a `rem` b == 0 && a /= b
-  then return $ Problem d ((pack . show) (a `div` b)) ((pack . show) a <> " \\\\div " <> (pack . show) b) Division
+  then return $ Problem d ((pack . show) (a `div` b)) ((pack . show) a <> " ÷ " <> (pack . show) b) Division
   else division d
   where
     (low, high) = case d of
