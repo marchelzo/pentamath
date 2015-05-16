@@ -36,7 +36,12 @@ html {
   width: 100vwmin;
   margin-left: auto;
   margin-right: auto;
-   
+}
+
+#picture {
+  background-color: #eee;
+  height: 100vhmin;
+  width: 100vwmin;
 }
 
 #userpass {
